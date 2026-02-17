@@ -1,20 +1,9 @@
-import { auth } from '@/auth'
+import NextAuth from 'next-auth'
+import { edgeAuthConfig } from '@/auth.edge.config'
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth
-  const isOnDashboard = req.nextUrl.pathname.startsWith('/dashboard')
-  const isOnAuth = req.nextUrl.pathname.startsWith('/login') || req.nextUrl.pathname.startsWith('/signup')
+export const { auth } = NextAuth(edgeAuthConfig)
 
-  if (isOnDashboard && !isLoggedIn) {
-    return Response.redirect(new URL('/login', req.nextUrl))
-  }
-
-  if (isOnAuth && isLoggedIn) {
-    return Response.redirect(new URL('/dashboard', req.nextUrl))
-  }
-
-  return undefined
-})
+export default auth
 
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
