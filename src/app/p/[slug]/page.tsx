@@ -8,6 +8,8 @@ import { MapPin, Briefcase, Award } from 'lucide-react'
 import { ResumeModal } from '@/components/resume-modal'
 import { Button } from '@/components/ui/button'
 import { Download } from 'lucide-react'
+import { ThemeToggle } from '@/components/theme-toggle'
+import Image from 'next/image'
 
 interface Profile {
   slug: string
@@ -57,6 +59,24 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      {/* Header */}
+      <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Image 
+              src="/images/resume-pilot.png" 
+              alt="ResumePilot Logo"
+              className="rounded-lg"
+              width={250} 
+              height={250}
+            />
+          </div>
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+          </div>
+        </div>
+      </header>
+      
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}

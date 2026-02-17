@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ResumePilot - AI-Powered Resume Optimization",
   description: "Optimize your resume for any job with AI. Get ATS-friendly resumes, cover letters, and track your applications.",
+  icons: {
+    icon: "/images/icon.png",
+  },
 };
 
 export default function RootLayout({

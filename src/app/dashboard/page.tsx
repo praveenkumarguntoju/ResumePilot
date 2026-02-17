@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { FileText, Briefcase, FileEdit, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { DashboardHeader } from '@/components/dashboard-header'
+import { ResumeCard } from '@/components/resume-card'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -50,59 +51,59 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Resume</CardTitle>
-              <FileText className="h-4 w-4 text-zinc-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{hasResume ? 'Uploaded' : 'None'}</div>
-              <p className="text-xs text-zinc-500 mt-1">
-                {hasResume ? 'Ready to optimize' : 'Upload your resume to get started'}
-              </p>
-            </CardContent>
-          </Card>
+          <ResumeCard hasResume={hasResume} resumeText={profile?.rawResumeText || undefined} />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Optimized Resumes</CardTitle>
-              <FileEdit className="h-4 w-4 text-zinc-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{resumeCount}</div>
-              <p className="text-xs text-zinc-500 mt-1">
-                Tailored for specific jobs
-              </p>
-            </CardContent>
-          </Card>
-
-          <Link href="/dashboard/applications">
-            <Card className="cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+          <Link href="/dashboard/resumes">
+            <Card className="relative overflow-hidden cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Applications</CardTitle>
-                <Briefcase className="h-4 w-4 text-zinc-500" />
+                <CardTitle className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Optimized Resumes</CardTitle>
+                <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center">
+                  <FileEdit className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{applicationCount}</div>
-                <p className="text-xs text-zinc-500 mt-1">
+                <div className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">{resumeCount}</div>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
+                  Tailored for specific jobs
+                </p>
+              </CardContent>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-green-50 dark:bg-green-950/20 rounded-full -mr-16 -mt-16 opacity-50" />
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/applications">
+            <Card className="relative overflow-hidden cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Applications</CardTitle>
+                <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-950 flex items-center justify-center">
+                  <Briefcase className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">{applicationCount}</div>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
                   Jobs tracked
                 </p>
               </CardContent>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 dark:bg-purple-950/20 rounded-full -mr-16 -mt-16 opacity-50" />
             </Card>
           </Link>
 
           <Link href="/dashboard/profiles">
-            <Card className="cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+            <Card className="relative overflow-hidden cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Public Profiles</CardTitle>
-                <Globe className="h-4 w-4 text-zinc-500" />
+                <CardTitle className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Public Profiles</CardTitle>
+                <div className="h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-950 flex items-center justify-center">
+                  <Globe className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{profileCount}</div>
-                <p className="text-xs text-zinc-500 mt-1">
+                <div className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">{profileCount}</div>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
                   Shareable profiles
                 </p>
               </CardContent>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50 dark:bg-orange-950/20 rounded-full -mr-16 -mt-16 opacity-50" />
             </Card>
           </Link>
         </div>
@@ -172,62 +173,6 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {resumes.length > 0 && (
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold mb-4">Optimized Resumes</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {resumes.map((resume: any, index: number) => (
-                <Link key={resume.id} href={`/dashboard/resumes/${resume.id}`}>
-                  <Card className={`cursor-pointer transition-all hover:shadow-lg ${
-                    index === 0 
-                      ? 'ring-2 ring-blue-500 dark:ring-blue-400 bg-blue-50 dark:bg-blue-950' 
-                      : 'hover:border-zinc-400 dark:hover:border-zinc-600'
-                  }`}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-base line-clamp-1">
-                            {resume.jobTitle}
-                          </CardTitle>
-                          <CardDescription className="line-clamp-1">
-                            {resume.company}
-                          </CardDescription>
-                        </div>
-                        {index === 0 && (
-                          <span className="text-xs font-semibold px-2 py-1 bg-blue-500 text-white rounded-full">
-                            Latest
-                          </span>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-4">
-                          <div>
-                            <span className="text-xs text-zinc-500 dark:text-zinc-400">ATS Score</span>
-                            <p className="font-semibold">{resume.atsScore}%</p>
-                          </div>
-                          <div>
-                            <span className="text-xs text-zinc-500 dark:text-zinc-400">Keywords</span>
-                            <p className="font-semibold">{resume.keywordMatch}%</p>
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
-                        {new Date(resume.createdAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric'
-                        })}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </main>
     </div>
   )
