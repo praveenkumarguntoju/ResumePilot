@@ -36,6 +36,13 @@ export async function POST(request: Request) {
       )
     }
 
+    if (!resume.jobDescription) {
+      return NextResponse.json(
+        { error: 'Job description is required to generate a cover letter' },
+        { status: 400 }
+      )
+    }
+
     const profile = await prisma.profile.findUnique({
       where: { userId: session.user.id },
     })

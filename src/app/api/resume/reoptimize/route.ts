@@ -118,6 +118,13 @@ Return ONLY the optimized resume text, formatted professionally. Do not include 
       throw new Error('Failed to generate optimized resume')
     }
 
+    if (!existingResume.jobDescription) {
+      return NextResponse.json(
+        { error: 'Job description is required for re-optimization' },
+        { status: 400 }
+      )
+    }
+
     const atsScore = calculateATSScore(optimizedResume, existingResume.jobDescription)
     const keywordMatch = calculateKeywordMatch(optimizedResume, existingResume.jobDescription)
 

@@ -134,7 +134,7 @@ export default async function ResumePage({ params }: { params: Promise<{ id: str
               <CardContent>
                 <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-6 max-h-[300px] overflow-y-auto">
                   <pre className="whitespace-pre-wrap text-sm">
-                    {resume.jobDescription}
+                    {resume.jobDescription || 'No job description available'}
                   </pre>
                 </div>
               </CardContent>

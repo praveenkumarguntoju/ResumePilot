@@ -103,7 +103,7 @@ export default async function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 max-h-[300px] overflow-y-auto mb-4">
-                      <pre className="whitespace-pre-wrap text-xs font-mono text-zinc-700 dark:text-zinc-300">{profile.rawResumeText.trim().slice(0, 500)}...</pre>
+                      <pre className="whitespace-pre-wrap text-xs font-mono text-zinc-700 dark:text-zinc-300">{profile.rawResumeText?.trim().slice(0, 500)}...</pre>
                     </div>
                     <Link href="/dashboard/optimize">
                       <Button className="w-full">
