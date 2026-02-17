@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, Send } from 'lucide-react'
@@ -14,6 +14,15 @@ export function ChatBox({ slug }: { slug: string }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages, loading])
 
   async function sendMessage() {
     if (!input.trim()) return
@@ -47,9 +56,9 @@ export function ChatBox({ slug }: { slug: string }) {
   return (
     <Card className="sticky top-4">
       <CardHeader>
-        <CardTitle>Ask About This Candidate</CardTitle>
+        <CardTitle>Chat with Me</CardTitle>
         <CardDescription>
-          Chat with AI to learn more about skills and experience
+          Ask me anything about my skills, experience, or projects
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -84,6 +93,7 @@ export function ChatBox({ slug }: { slug: string }) {
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
 
         <div className="flex gap-2">
