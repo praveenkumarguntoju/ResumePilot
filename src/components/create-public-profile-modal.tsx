@@ -3,11 +3,17 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Loader2, Globe, Copy, Check } from 'lucide-react'
 
-export function CreatePublicProfile({ resumeId }: { resumeId: string }) {
+interface CreatePublicProfileModalProps {
+  resumeId: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export function CreatePublicProfileModal({ resumeId, open, onOpenChange }: CreatePublicProfileModalProps) {
   const router = useRouter()
   const [name, setName] = useState('')
   const [headline, setHeadline] = useState('')
@@ -75,60 +81,62 @@ export function CreatePublicProfile({ resumeId }: { resumeId: string }) {
 
   if (profileUrl) {
     return (
-      <Card className="border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
-            <Globe className="h-5 w-5" />
-            Public Profile Created!
-          </CardTitle>
-          <CardDescription>
-            Share this link with recruiters and employers
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              value={profileUrl}
-              readOnly
-              className="bg-white dark:bg-zinc-900"
-            />
-            <Button onClick={copyToClipboard} variant="outline">
-              {copied ? (
-                <>
-                  <Check className="h-4 w-4 mr-2" />
-                  Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy
-                </>
-              )}
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
+              <Globe className="h-5 w-5" />
+              Public Profile Created!
+            </DialogTitle>
+            <DialogDescription>
+              Share this link with recruiters and employers
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                value={profileUrl}
+                readOnly
+                className="bg-white dark:bg-zinc-900"
+              />
+              <Button onClick={copyToClipboard} variant="outline">
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </>
+                )}
+              </Button>
+            </div>
+            <Button
+              onClick={() => window.open(profileUrl, '_blank')}
+              className="w-full"
+            >
+              View Public Profile
             </Button>
           </div>
-          <Button
-            onClick={() => window.open(profileUrl, '_blank')}
-            className="w-full"
-          >
-            View Public Profile
-          </Button>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Globe className="h-5 w-5" />
-          Create Public Profile
-        </CardTitle>
-        <CardDescription>
-          Share your resume with recruiters via AI-powered chat
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Globe className="h-5 w-5" />
+            Create Public Profile
+          </DialogTitle>
+          <DialogDescription>
+            Share your resume with recruiters via AI-powered chat
+          </DialogDescription>
+        </DialogHeader>
         <form onSubmit={handleCreate} className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="name" className="text-sm font-medium">
@@ -297,11 +305,11 @@ export function CreatePublicProfile({ resumeId }: { resumeId: string }) {
             )}
           </Button>
 
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center">
             Recruiters will be able to view your resume and ask questions via AI chat
           </p>
         </form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   )
 }

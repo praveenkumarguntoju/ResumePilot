@@ -1,26 +1,59 @@
-import { prisma } from '@/lib/prisma'
-import { notFound } from 'next/navigation'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { ChatBox } from '@/components/chat-box'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { MapPin, Briefcase, Award } from 'lucide-react'
+import { ResumeModal } from '@/components/resume-modal'
+import { Button } from '@/components/ui/button'
+import { Download } from 'lucide-react'
 
-export default async function PublicProfilePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
+interface Profile {
+  slug: string
+  name: string
+  headline: string
+  location: string | null
+  resumeText: string
+  skills: string
+  experience: string
+}
 
-  const profile = await prisma.publicProfile.findUnique({
-    where: { slug, isActive: true },
-  })
+export default function PublicProfilePage({ params }: { params: Promise<{ slug: string }> }) {
+  const router = useRouter()
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [skills, setSkills] = useState<string[]>([])
+  const [experience, setExperience] = useState<Array<{ company: string; role: string; summary: string }>>([])
 
-  if (!profile) {
-    notFound()
+  useEffect(() => {
+    async function loadProfile() {
+      const { slug } = await params
+      
+      try {
+        const response = await fetch(`/api/profile/${slug}`)
+        if (!response.ok) {
+          router.push('/404')
+          return
+        }
+        const data = await response.json()
+        setProfile(data)
+        setSkills(JSON.parse(data.skills))
+        setExperience(JSON.parse(data.experience))
+      } catch (error) {
+        console.error('Failed to load profile:', error)
+        router.push('/404')
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    loadProfile()
+  }, [params, router])
+
+  if (loading || !profile) {
+    return <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">Loading...</div>
   }
-
-  const skills = JSON.parse(profile.skills) as string[]
-  const experience = JSON.parse(profile.experience) as Array<{
-    company: string
-    role: string
-    summary: string
-  }>
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -99,15 +132,46 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
 
             {/* Full Resume */}
             <Card>
-              <CardHeader>
-                <CardTitle>Full Resume</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <div>
+                  <CardTitle>Optimized Resume</CardTitle>
+                  <CardDescription>
+                    Tailored for this specific job posting
+                  </CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <ResumeModal resumeText={profile.resumeText} />
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => window.open(`/api/profile/${profile.slug}/download`, '_blank')}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-6 max-h-96 overflow-y-auto">
-                  <pre className="whitespace-pre-wrap text-sm font-mono text-zinc-700 dark:text-zinc-300">
-                    {profile.resumeText}
-                  </pre>
+                <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-6 max-h-[300px] overflow-hidden relative">
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    {profile.resumeText.split('\n').slice(0, 15).map((line, i) => {
+                      const formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                      
+                      if (line.trim().endsWith(':') && line.trim().length > 2) {
+                        return <h3 key={i} className="text-base font-bold mt-3 mb-1" dangerouslySetInnerHTML={{ __html: formattedLine }} />
+                      }
+                      if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+                        return <li key={i} className="ml-4 text-sm" dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^[-•]\s*/, '') }} />
+                      }
+                      if (line.trim() === '') return <br key={i} />
+                      return <p key={i} className="text-sm mb-1" dangerouslySetInnerHTML={{ __html: formattedLine }} />
+                    })}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-zinc-50 dark:from-zinc-900 to-transparent" />
                 </div>
+                <p className="text-xs text-center text-zinc-500 mt-2">
+                  Showing preview - Scroll down to see complete content
+                </p>
               </CardContent>
             </Card>
           </div>

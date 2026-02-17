@@ -67,6 +67,13 @@ YOUR RESUME DATA (ONLY SOURCE):
 Name: ${profile.name}
 Title: ${profile.headline}
 Location: ${profile.location || 'Not specified'}
+${profile.availability ? `Availability: ${profile.availability}` : ''}
+${profile.dayRate ? `Day Rate: ${profile.dayRate}` : ''}
+${profile.annualSalary ? `Annual Salary Expectation: ${profile.annualSalary}` : ''}
+${profile.jobType ? `Job Type Preference: ${profile.jobType}` : ''}
+${profile.visaSponsorshipReq ? 'Visa Sponsorship: Required' : ''}
+${profile.contactNumber ? `Contact: ${profile.contactNumber}` : ''}
+${profile.additionalNotes ? `Additional Information: ${profile.additionalNotes}` : ''}
 
 ${profile.resumeText}
 

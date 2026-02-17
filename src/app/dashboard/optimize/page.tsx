@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Loader2, ArrowLeft, Sparkles } from 'lucide-react'
+import { Loader2, ArrowLeft, Sparkles, Link2 } from 'lucide-react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/theme-toggle'
 
@@ -14,8 +14,73 @@ export default function OptimizePage() {
   const [jobTitle, setJobTitle] = useState('')
   const [company, setCompany] = useState('')
   const [jobDescription, setJobDescription] = useState('')
+  const [jobUrl, setJobUrl] = useState('')
   const [loading, setLoading] = useState(false)
+  const [extracting, setExtracting] = useState(false)
   const [error, setError] = useState('')
+
+  const handleExtractFromUrl = async () => {
+    if (!jobUrl) return
+    
+    setError('')
+    setExtracting(true)
+
+    try {
+      const response = await fetch('/api/job/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: jobUrl }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setJobTitle(data.jobTitle)
+        setCompany(data.company)
+        setJobDescription(data.jobDescription)
+        
+        // Auto-submit after successful extraction
+        setExtracting(false)
+        await handleOptimizeWithData(data.jobTitle, data.company, data.jobDescription)
+      } else {
+        setError(data.error || 'Failed to extract job details')
+        setExtracting(false)
+      }
+    } catch (err) {
+      setError('Failed to extract job details from URL')
+      setExtracting(false)
+    }
+  }
+
+  const handleOptimizeWithData = async (title: string, comp: string, desc: string) => {
+    setError('')
+    setLoading(true)
+
+    try {
+      const response = await fetch('/api/resume/optimize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobTitle: title,
+          company: comp,
+          jobDescription: desc,
+          jobUrl: jobUrl || undefined,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Optimization failed')
+      }
+
+      router.push(`/dashboard/resumes/${data.resumeId}`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to optimize resume')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleOptimize = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,6 +95,7 @@ export default function OptimizePage() {
           jobTitle,
           company,
           jobDescription,
+          jobUrl: jobUrl || undefined,
         }),
       })
 
@@ -67,6 +133,15 @@ export default function OptimizePage() {
           </p>
         </div>
 
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900 rounded-lg">
+          <h3 className="font-medium text-sm mb-2">💡 Two ways to optimize:</h3>
+          <ul className="text-sm text-zinc-600 dark:text-zinc-400 space-y-1">
+            <li>• <strong>Quick:</strong> Paste a job URL (LinkedIn, Indeed, CV-Library) and click the button</li>
+            <li>• <strong>Manual:</strong> Fill in job details manually and click the button</li>
+            <li>• The button changes based on whether you provide a URL or manual details</li>
+          </ul>
+        </div>
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -80,36 +155,55 @@ export default function OptimizePage() {
           <CardContent>
             <form onSubmit={handleOptimize} className="space-y-6">
               <div className="space-y-2">
+                <label htmlFor="jobUrl" className="text-sm font-medium">
+                  Job URL (Optional)
+                </label>
+                <Input
+                  id="jobUrl"
+                  type="url"
+                  placeholder="e.g., https://linkedin.com/jobs/view/123456 or Indeed/CV-Library URL"
+                  value={jobUrl}
+                  onChange={(e) => setJobUrl(e.target.value)}
+                  disabled={loading || extracting}
+                />
+                <p className="text-xs text-zinc-500">
+                  {jobUrl 
+                    ? 'Click "Extract & Optimize from URL" button below to auto-extract and optimize'
+                    : 'Or paste a job URL and click the button below to auto-extract'}
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <label htmlFor="jobTitle" className="text-sm font-medium">
-                  Job Title
+                  Job Title {!jobUrl && <span className="text-red-500">*</span>}
                 </label>
                 <Input
                   id="jobTitle"
                   placeholder="e.g., Senior Software Engineer"
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)}
-                  required
-                  disabled={loading}
+                  required={!jobUrl}
+                  disabled={loading || extracting}
                 />
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="company" className="text-sm font-medium">
-                  Company
+                  Company {!jobUrl && <span className="text-red-500">*</span>}
                 </label>
                 <Input
                   id="company"
                   placeholder="e.g., Google"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
-                  required
-                  disabled={loading}
+                  required={!jobUrl}
+                  disabled={loading || extracting}
                 />
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="jobDescription" className="text-sm font-medium">
-                  Job Description
+                  Job Description {!jobUrl && <span className="text-red-500">*</span>}
                 </label>
                 <textarea
                   id="jobDescription"
@@ -117,8 +211,8 @@ export default function OptimizePage() {
                   placeholder="Paste the full job description here..."
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
-                  required
-                  disabled={loading}
+                  required={!jobUrl}
+                  disabled={loading || extracting}
                 />
                 <p className="text-xs text-zinc-500">
                   Include requirements, responsibilities, and qualifications
@@ -131,31 +225,28 @@ export default function OptimizePage() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                {loading ? (
+              <Button 
+                type={jobUrl ? "button" : "submit"} 
+                className="w-full" 
+                size="lg" 
+                disabled={loading || extracting}
+                onClick={jobUrl ? handleExtractFromUrl : undefined}
+              >
+                {loading || extracting ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Optimizing with AI...
+                    {extracting ? 'Extracting & Optimizing...' : 'Optimizing with AI...'}
                   </>
                 ) : (
                   <>
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    Optimize Resume
+                    {jobUrl ? <Link2 className="mr-2 h-5 w-5" /> : <Sparkles className="mr-2 h-5 w-5" />}
+                    {jobUrl ? 'Extract & Optimize from URL' : 'Optimize Resume'}
                   </>
                 )}
               </Button>
             </form>
           </CardContent>
         </Card>
-
-        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-900 rounded-lg">
-          <h3 className="font-medium text-sm mb-2">💡 Tips for best results:</h3>
-          <ul className="text-sm text-zinc-600 dark:text-zinc-400 space-y-1">
-            <li>• Include the complete job description</li>
-            <li>• Copy all requirements and qualifications</li>
-            <li>• The more details, the better the optimization</li>
-          </ul>
-        </div>
       </main>
     </div>
   )

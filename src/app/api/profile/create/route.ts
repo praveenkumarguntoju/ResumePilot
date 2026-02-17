@@ -8,6 +8,13 @@ const createProfileSchema = z.object({
   name: z.string().min(1),
   headline: z.string().min(1),
   location: z.string().optional(),
+  availability: z.string().optional(),
+  dayRate: z.string().optional(),
+  annualSalary: z.string().optional(),
+  jobType: z.string().optional(),
+  visaSponsorshipReq: z.boolean().optional(),
+  contactNumber: z.string().optional(),
+  additionalNotes: z.string().optional(),
 })
 
 function generateSlug(name: string): string {
@@ -26,7 +33,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { resumeId, name, headline, location } = createProfileSchema.parse(body)
+    const { resumeId, name, headline, location, availability, dayRate, annualSalary, jobType, visaSponsorshipReq, contactNumber, additionalNotes } = createProfileSchema.parse(body)
 
     const resume = await prisma.resume.findUnique({
       where: {
@@ -163,6 +170,13 @@ export async function POST(request: Request) {
         resumeText: resume.tailoredResumeText,
         skills: JSON.stringify(skills),
         experience: JSON.stringify(experience),
+        availability: availability || null,
+        dayRate: dayRate || null,
+        annualSalary: annualSalary || null,
+        jobType: jobType || null,
+        visaSponsorshipReq: visaSponsorshipReq || false,
+        contactNumber: contactNumber || null,
+        additionalNotes: additionalNotes || null,
       },
     })
 

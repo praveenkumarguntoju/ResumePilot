@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Target, FileText, Briefcase, Zap, Shield } from "lucide-react";
+import { Sparkles, Target, FileText, Briefcase, Zap, Shield, MessageSquare } from "lucide-react";
 
 export default function Home() {
   return (
@@ -56,7 +56,7 @@ export default function Home() {
         </section>
 
         <section className="container mx-auto px-4 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card>
               <CardHeader>
                 <Target className="h-10 w-10 mb-4 text-blue-600" />
@@ -86,13 +86,26 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
             </Card>
+
+            <Card className="relative border-2 border-orange-500 dark:border-orange-600 shadow-lg">
+              <div className="absolute -top-3 left-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                AI-Powered
+              </div>
+              <CardHeader>
+                <MessageSquare className="h-10 w-10 mb-4 text-orange-600" />
+                <CardTitle>Public Profile with AI Chatbot</CardTitle>
+                <CardDescription>
+                  Create a shareable profile with an AI chatbot that answers recruiter questions about your experience
+                </CardDescription>
+              </CardHeader>
+            </Card>
           </div>
         </section>
 
         <section className="bg-zinc-100 dark:bg-zinc-900 py-16">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
               <div className="text-center">
                 <div className="w-12 h-12 bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
                   1
@@ -132,6 +145,16 @@ export default function Home() {
                   Download as PDF or DOCX and apply with confidence
                 </p>
               </div>
+
+              <div className="text-center">
+                <div className="w-12 h-12 bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
+                  5
+                </div>
+                <h3 className="font-semibold mb-2">Create Public Profile</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Share your profile with an AI chatbot that answers recruiter questions
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -166,6 +189,16 @@ export default function Home() {
                   <h3 className="font-semibold mb-1">Privacy First</h3>
                   <p className="text-zinc-600 dark:text-zinc-400">
                     Your data is encrypted and never shared with third parties
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <MessageSquare className="h-6 w-6 text-orange-600 flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-semibold mb-1">AI-Powered Profile</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400">
+                    Create shareable profiles with an AI chatbot that answers recruiter questions 24/7
                   </p>
                 </div>
               </div>

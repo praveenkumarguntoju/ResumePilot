@@ -12,6 +12,7 @@ const optimizeSchema = z.object({
   jobTitle: z.string().min(1),
   company: z.string().min(1),
   jobDescription: z.string().min(50),
+  jobUrl: z.string().url().optional().or(z.literal('')).transform(val => val || undefined),
 })
 
 function calculateATSScore(resume: string, jobDescription: string): number {
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { jobTitle, company, jobDescription } = optimizeSchema.parse(body)
+    const { jobTitle, company, jobDescription, jobUrl } = optimizeSchema.parse(body)
 
     const profile = await prisma.profile.findUnique({
       where: { userId: session.user.id },
@@ -126,6 +127,7 @@ Return ONLY the optimized resume text, formatted professionally. Do not include 
         jobTitle,
         company,
         jobDescription,
+        jobUrl,
         tailoredResumeText: optimizedResume,
         atsScore,
         keywordMatch,
