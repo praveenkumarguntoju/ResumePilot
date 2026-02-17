@@ -26,7 +26,7 @@ Edit `.env.local` with your credentials:
 
 ```env
 # Database - Update with your PostgreSQL credentials
-DATABASE_URL="postgresql://user:password@localhost:5432/careerpilot?schema=public"
+DATABASE_URL="postgresql://user:password@localhost:5432/resumepilot?schema=public"
 
 # NextAuth - Generate secret with: openssl rand -base64 32
 NEXTAUTH_URL="http://localhost:3000"
@@ -89,7 +89,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ### 1. Create Stripe Product
 1. Go to [Stripe Dashboard](https://dashboard.stripe.com)
 2. Navigate to Products → Add Product
-3. Name: "CareerPilot Pro"
+3. Name: "ResumePilot Pro"
 4. Price: $19/month (recurring)
 5. Copy the Price ID to `STRIPE_PRO_PRICE_ID`
 

@@ -11,7 +11,12 @@ interface Message {
 }
 
 export function ChatBox({ slug }: { slug: string }) {
-  const [messages, setMessages] = useState<Message[]>([])
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'assistant',
+      content: "Hi! 👋 I'm here to answer questions about my skills, experience, and background. Feel free to ask me anything!"
+    }
+  ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -63,13 +68,6 @@ export function ChatBox({ slug }: { slug: string }) {
       </CardHeader>
       <CardContent>
         <div className="h-96 overflow-y-auto border rounded-lg p-4 mb-4 space-y-4 bg-zinc-50 dark:bg-zinc-900">
-          {messages.length === 0 && (
-            <div className="text-center text-zinc-500 dark:text-zinc-400 text-sm mt-8">
-              <p>Ask questions like:</p>
-              <p className="mt-2 italic">"What technologies do you know?"</p>
-              <p className="italic">"Tell me about your AWS experience"</p>
-            </div>
-          )}
           {messages.map((m, i) => (
             <div
               key={i}

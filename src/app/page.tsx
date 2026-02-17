@@ -10,7 +10,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="h-6 w-6" />
-            <h1 className="text-xl font-bold">CareerPilot</h1>
+            <h1 className="text-xl font-bold">ResumePilot</h1>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login">
@@ -138,7 +138,7 @@ export default function Home() {
 
         <section className="container mx-auto px-4 py-16">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Why CareerPilot?</h2>
+            <h2 className="text-3xl font-bold text-center mb-12">Why ResumePilot?</h2>
             <div className="space-y-6">
               <div className="flex gap-4">
                 <Zap className="h-6 w-6 text-yellow-600 flex-shrink-0 mt-1" />
@@ -177,7 +177,7 @@ export default function Home() {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-4">Ready to Land Your Dream Job?</h2>
             <p className="text-xl text-zinc-300 mb-8 max-w-2xl mx-auto">
-              Join thousands of job seekers who have optimized their resumes with CareerPilot
+              Join thousands of job seekers who have optimized their resumes with ResumePilot
             </p>
             <Link href="/signup">
               <Button size="lg" variant="secondary" className="text-lg px-8">
@@ -191,7 +191,7 @@ export default function Home() {
 
       <footer className="border-t border-zinc-200 dark:border-zinc-800 py-8">
         <div className="container mx-auto px-4 text-center text-sm text-zinc-600 dark:text-zinc-400">
-          <p>&copy; 2026 CareerPilot. All rights reserved.</p>
+          <p>&copy; 2026 ResumePilot. All rights reserved.</p>
         </div>
       </footer>
     </div>

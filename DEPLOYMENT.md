@@ -1,4 +1,4 @@
-# CareerPilot Deployment Guide
+# ResumePilot Deployment Guide
 
 ## Free Deployment Stack (Recommended)
 
@@ -21,7 +21,7 @@
 ### Option A: Neon PostgreSQL (Recommended - Free)
 
 1. Go to https://neon.tech and sign up
-2. Create a new project called "careerpilot"
+2. Create a new project called "resumepilot"
 3. Copy your connection string (it looks like: `postgresql://user:password@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require`)
 4. Save this - you'll need it for Vercel
 
@@ -69,7 +69,7 @@ git commit -m "Initial commit - ready for deployment"
 3. Push your code:
 
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/careerpilot.git
+git remote add origin https://github.com/YOUR_USERNAME/resumepilot.git
 git branch -M main
 git push -u origin main
 ```
@@ -166,7 +166,7 @@ Copy the output and add it to Vercel environment variables.
 Make sure you have these in Vercel:
 
 - ✅ `DATABASE_URL` - Your Neon PostgreSQL connection string
-- ✅ `NEXTAUTH_URL` - Your Vercel app URL (e.g., https://careerpilot.vercel.app)
+- ✅ `NEXTAUTH_URL` - Your Vercel app URL (e.g., https://resumepilot.vercel.app)
 - ✅ `NEXTAUTH_SECRET` - Generated secret from openssl
 - ✅ `OPENAI_API_KEY` - Your OpenAI API key
 

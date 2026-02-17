@@ -1,4 +1,4 @@
-# CareerPilot 🚀
+# ResumePilot 🚀
 
 AI-powered resume optimization platform to help you land your dream job.
 
@@ -55,7 +55,7 @@ AI-powered resume optimization platform to help you land your dream job.
 1. Clone the repository:
 ```bash
 git clone <your-repo-url>
-cd careerpilot
+cd resumepilot
 ```
 
 2. Install dependencies:
@@ -70,7 +70,7 @@ cp env.template .env.local
 
 Edit `.env.local` with your credentials:
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/careerpilot"
+DATABASE_URL="postgresql://user:password@localhost:5432/resumepilot"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key"
 OPENAI_API_KEY="your-openai-api-key"

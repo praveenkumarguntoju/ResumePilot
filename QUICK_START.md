@@ -1,4 +1,4 @@
-# 🚀 Quick Deployment Guide - CareerPilot
+# 🚀 Quick Deployment Guide - ResumePilot
 
 ## Deploy in 15 Minutes (Free)
 
@@ -6,7 +6,7 @@
 
 1. Go to **https://neon.tech**
 2. Sign up with GitHub
-3. Create a new project: "careerpilot"
+3. Create a new project: "resumepilot"
 4. Copy your connection string - it looks like:
    ```
    postgresql://user:password@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require
@@ -22,7 +22,7 @@ git add .
 git commit -m "Ready for deployment"
 
 # Create repo on GitHub, then:
-git remote add origin https://github.com/YOUR_USERNAME/careerpilot.git
+git remote add origin https://github.com/YOUR_USERNAME/resumepilot.git
 git branch -M main
 git push -u origin main
 ```
@@ -32,7 +32,7 @@ git push -u origin main
 1. Go to **https://vercel.com/new**
 2. Sign up with GitHub
 3. Click "Import Project"
-4. Select your `careerpilot` repository
+4. Select your `resumepilot` repository
 5. Click "Deploy" (don't configure anything yet)
 
 ### Step 4: Add Environment Variables (5 minutes)

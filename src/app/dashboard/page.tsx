@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { ResumeUpload } from '@/components/resume-upload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { FileText, Briefcase, FileEdit } from 'lucide-react'
+import { FileText, Briefcase, FileEdit, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { DashboardHeader } from '@/components/dashboard-header'
 
@@ -31,6 +31,10 @@ export default async function DashboardPage() {
     where: { userId: session.user.id },
   })
 
+  const profileCount = await prisma.publicProfile.count({
+    where: { userId: session.user.id },
+  })
+
   const hasResume = !!profile?.rawResumeText
 
   return (
@@ -45,7 +49,7 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Resume</CardTitle>
@@ -82,6 +86,21 @@ export default async function DashboardPage() {
                 <div className="text-2xl font-bold">{applicationCount}</div>
                 <p className="text-xs text-zinc-500 mt-1">
                   Jobs tracked
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/profiles">
+            <Card className="cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Public Profiles</CardTitle>
+                <Globe className="h-4 w-4 text-zinc-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{profileCount}</div>
+                <p className="text-xs text-zinc-500 mt-1">
+                  Shareable profiles
                 </p>
               </CardContent>
             </Card>
@@ -155,7 +174,7 @@ export default async function DashboardPage() {
         </div>
 
         {resumes.length > 0 && (
-          <div>
+          <div className="mb-8">
             <h3 className="text-xl font-semibold mb-4">Optimized Resumes</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {resumes.map((resume: any, index: number) => (
