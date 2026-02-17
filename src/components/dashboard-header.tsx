@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import Image from 'next/image'
+// New commit
 
 interface DashboardHeaderProps {
   userEmail?: string | null
