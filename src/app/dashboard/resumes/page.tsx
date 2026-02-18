@@ -2,7 +2,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
@@ -16,6 +16,11 @@ export default async function ResumesPage() {
   const resumes = await prisma.resume.findMany({
     where: { userId: session.user.id },
     orderBy: { createdAt: 'desc' },
+    include: {
+      _count: {
+        select: { publicProfiles: true }
+      }
+    }
   })
 
   return (
@@ -91,13 +96,24 @@ export default async function ResumesPage() {
                         </div>
                       </div>
                     </div>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
-                      {new Date(resume.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </p>
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                        {new Date(resume.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </p>
+                      <div className="flex items-center gap-1.5 text-xs">
+                        <Globe className="h-3.5 w-3.5 text-orange-500 dark:text-orange-400" />
+                        <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                          {resume._count?.publicProfiles || 0}
+                        </span>
+                        <span className="text-zinc-500 dark:text-zinc-400">
+                          {resume._count?.publicProfiles === 1 ? 'profile' : 'profiles'}
+                        </span>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </Link>

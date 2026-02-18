@@ -45,7 +45,8 @@ model Resume {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  publicProfiles     PublicProfile[]
 }
 
 model Application {
@@ -68,6 +69,7 @@ model Application {
 model PublicProfile {
   id                  String   @id @default(cuid())
   userId              String
+  resumeId            String?
   slug                String   @unique
   name                String
   headline            String
@@ -88,9 +90,11 @@ model PublicProfile {
   updatedAt           DateTime @updatedAt
   
   user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume              Resume?  @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   
   @@index([slug])
   @@index([userId])
+  @@index([resumeId])
 }
 
 model ChatMessage {

@@ -164,6 +164,7 @@ export async function POST(request: Request) {
     const publicProfile = await prisma.publicProfile.create({
       data: {
         userId: session.user.id,
+        resumeId: resumeId,
         slug,
         name,
         headline,
