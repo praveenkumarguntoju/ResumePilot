@@ -26,7 +26,7 @@ export default async function PublicProfilesPage() {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <Link href="/dashboard">
-            <Button variant="ghost" className="mb-4">
+            <Button variant="ghost" className="mb-4 text-zinc-900 dark:text-zinc-100 border border-transparent dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Button>

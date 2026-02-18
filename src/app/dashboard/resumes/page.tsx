@@ -23,7 +23,7 @@ export default async function ResumesPage() {
       <div className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
         <div className="container mx-auto px-4 py-4">
           <Link href="/dashboard">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="text-zinc-900 dark:text-zinc-100 border border-transparent dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Button>

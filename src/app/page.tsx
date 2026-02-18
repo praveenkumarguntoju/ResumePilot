@@ -2,19 +2,27 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Target, FileText, Briefcase, Zap, Shield, MessageSquare } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
+import Image from "next/image";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-950 dark:to-zinc-900">
       <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6" />
-            <h1 className="text-xl font-bold">ResumePilot</h1>
+          <div className="flex items-center gap-3">
+            <Image 
+              src="/images/resume-pilot.png" 
+              alt="ResumePilot Logo"
+              className="rounded-lg"
+              width={250} 
+              height={250}
+            />
           </div>
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <Link href="/login">
-              <Button variant="ghost">Sign In</Button>
+              <Button variant="ghost" className="text-zinc-900 dark:text-zinc-100">Sign In</Button>
             </Link>
             <Link href="/signup">
               <Button>Get Started</Button>
@@ -26,7 +34,7 @@ export default function Home() {
       <main>
         <section className="container mx-auto px-4 py-24 text-center">
           <div className="max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 px-4 py-2 rounded-full text-sm font-medium mb-6 text-zinc-900 dark:text-zinc-100">
               <Sparkles className="h-4 w-4" />
               AI-Powered Resume Optimization
             </div>
@@ -44,12 +52,12 @@ export default function Home() {
                 </Button>
               </Link>
               <Link href="/login">
-                <Button size="lg" variant="outline" className="text-lg px-8">
+                <Button size="lg" variant="outline" className="text-lg px-8 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-zinc-100">
                   Sign In
                 </Button>
               </Link>
             </div>
-            <p className="text-sm text-zinc-500 mt-4">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-4">
               Free plan includes 3 resume optimizations. No credit card required.
             </p>
           </div>
@@ -104,13 +112,13 @@ export default function Home() {
 
         <section className="bg-zinc-100 dark:bg-zinc-900 py-16">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+            <h2 className="text-3xl font-bold text-center mb-12 text-zinc-900 dark:text-zinc-100">How It Works</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
               <div className="text-center">
                 <div className="w-12 h-12 bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
                   1
                 </div>
-                <h3 className="font-semibold mb-2">Upload Resume</h3>
+                <h3 className="font-semibold mb-2 text-zinc-900 dark:text-zinc-100">Upload Resume</h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   Upload your resume in PDF, DOCX, or TXT format
                 </p>
@@ -120,7 +128,7 @@ export default function Home() {
                 <div className="w-12 h-12 bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
                   2
                 </div>
-                <h3 className="font-semibold mb-2">Paste Job Description</h3>
+                <h3 className="font-semibold mb-2 text-zinc-900 dark:text-zinc-100">Paste Job Description</h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   Copy and paste the job posting you want to apply for
                 </p>
@@ -130,7 +138,7 @@ export default function Home() {
                 <div className="w-12 h-12 bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
                   3
                 </div>
-                <h3 className="font-semibold mb-2">AI Optimization</h3>
+                <h3 className="font-semibold mb-2 text-zinc-900 dark:text-zinc-100">AI Optimization</h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   Our AI tailors your resume with relevant keywords and skills
                 </p>
@@ -140,7 +148,7 @@ export default function Home() {
                 <div className="w-12 h-12 bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
                   4
                 </div>
-                <h3 className="font-semibold mb-2">Download & Apply</h3>
+                <h3 className="font-semibold mb-2 text-zinc-900 dark:text-zinc-100">Download & Apply</h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   Download as PDF or DOCX and apply with confidence
                 </p>
@@ -150,7 +158,7 @@ export default function Home() {
                 <div className="w-12 h-12 bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
                   5
                 </div>
-                <h3 className="font-semibold mb-2">Create Public Profile</h3>
+                <h3 className="font-semibold mb-2 text-zinc-900 dark:text-zinc-100">Create Public Profile</h3>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   Share your profile with an AI chatbot that answers recruiter questions
                 </p>
@@ -161,12 +169,12 @@ export default function Home() {
 
         <section className="container mx-auto px-4 py-16">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Why ResumePilot?</h2>
+            <h2 className="text-3xl font-bold text-center mb-12 text-zinc-900 dark:text-zinc-100">Why ResumePilot?</h2>
             <div className="space-y-6">
               <div className="flex gap-4">
                 <Zap className="h-6 w-6 text-yellow-600 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold mb-1">Lightning Fast</h3>
+                  <h3 className="font-semibold mb-1 text-zinc-900 dark:text-zinc-100">Lightning Fast</h3>
                   <p className="text-zinc-600 dark:text-zinc-400">
                     Get optimized resumes in seconds, not hours
                   </p>
@@ -176,7 +184,7 @@ export default function Home() {
               <div className="flex gap-4">
                 <Target className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold mb-1">ATS-Optimized</h3>
+                  <h3 className="font-semibold mb-1 text-zinc-900 dark:text-zinc-100">ATS-Optimized</h3>
                   <p className="text-zinc-600 dark:text-zinc-400">
                     Beat applicant tracking systems with keyword-rich resumes
                   </p>
@@ -186,7 +194,7 @@ export default function Home() {
               <div className="flex gap-4">
                 <Shield className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold mb-1">Privacy First</h3>
+                  <h3 className="font-semibold mb-1 text-zinc-900 dark:text-zinc-100">Privacy First</h3>
                   <p className="text-zinc-600 dark:text-zinc-400">
                     Your data is encrypted and never shared with third parties
                   </p>
@@ -196,7 +204,7 @@ export default function Home() {
               <div className="flex gap-4">
                 <MessageSquare className="h-6 w-6 text-orange-600 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold mb-1">AI-Powered Profile</h3>
+                  <h3 className="font-semibold mb-1 text-zinc-900 dark:text-zinc-100">AI-Powered Profile</h3>
                   <p className="text-zinc-600 dark:text-zinc-400">
                     Create shareable profiles with an AI chatbot that answers recruiter questions 24/7
                   </p>

@@ -30,9 +30,9 @@ export function DashboardHeader({ userEmail }: DashboardHeaderProps) {
           <form action={async () => {
             'use server'
             const { signOut } = await import('@/auth')
-            await signOut()
+            await signOut({ redirectTo: 'https://resume-pilot-bice.vercel.app' })
           }}>
-            <Button type="submit" variant="outline" size="sm" className="border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800">
+            <Button type="submit" variant="outline" size="sm" className="border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
               Sign out
             </Button>
           </form>
