@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,13 +11,15 @@ interface CreatePublicProfileModalProps {
   resumeId: string
   open: boolean
   onOpenChange: (open: boolean) => void
+  initialBrief?: string
 }
 
-export function CreatePublicProfileModal({ resumeId, open, onOpenChange }: CreatePublicProfileModalProps) {
+export function CreatePublicProfileModal({ resumeId, open, onOpenChange, initialBrief = '' }: CreatePublicProfileModalProps) {
   const router = useRouter()
   const [name, setName] = useState('')
   const [headline, setHeadline] = useState('')
   const [location, setLocation] = useState('')
+  const [shortBrief, setShortBrief] = useState(initialBrief)
   const [availability, setAvailability] = useState('')
   const [dayRate, setDayRate] = useState('')
   const [annualSalary, setAnnualSalary] = useState('')
@@ -29,6 +31,12 @@ export function CreatePublicProfileModal({ resumeId, open, onOpenChange }: Creat
   const [error, setError] = useState('')
   const [profileUrl, setProfileUrl] = useState('')
   const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    if (initialBrief) {
+      setShortBrief(initialBrief)
+    }
+  }, [initialBrief])
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,6 +52,7 @@ export function CreatePublicProfileModal({ resumeId, open, onOpenChange }: Creat
           name,
           headline,
           location,
+          shortBrief,
           availability,
           dayRate,
           annualSalary,
@@ -177,6 +186,24 @@ export function CreatePublicProfileModal({ resumeId, open, onOpenChange }: Creat
               onChange={(e) => setLocation(e.target.value)}
               disabled={loading}
             />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="shortBrief" className="text-sm font-medium">
+              Professional Brief (Optional)
+            </label>
+            <textarea
+              id="shortBrief"
+              placeholder="A short professional summary about yourself... (You can generate this from the resume page)"
+              value={shortBrief}
+              onChange={(e) => setShortBrief(e.target.value)}
+              disabled={loading}
+              rows={3}
+              className="flex min-h-[80px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300"
+            />
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Generate this from the "Professional Brief" card on your resume page, then paste it here. You can edit it if needed.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

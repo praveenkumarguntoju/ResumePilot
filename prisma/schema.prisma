@@ -73,6 +73,7 @@ model PublicProfile {
   headline            String
   location            String?
   resumeText          String
+  shortBrief          String?
   skills              String
   experience          String
   availability        String?

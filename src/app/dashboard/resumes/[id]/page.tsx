@@ -13,6 +13,7 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { CreatePublicProfileModal } from '@/components/create-public-profile-modal'
 import { ResumeModal } from '@/components/resume-modal'
 import { ResumeActionsMenu } from '@/components/resume-actions-menu'
+import { BriefGenerator } from '@/components/brief-generator'
 
 interface Resume {
   id: string
@@ -29,6 +30,7 @@ export default function ResumePage({ params }: { params: Promise<{ id: string }>
   const [resume, setResume] = useState<Resume | null>(null)
   const [loading, setLoading] = useState(true)
   const [profileModalOpen, setProfileModalOpen] = useState(false)
+  const [generatedBrief, setGeneratedBrief] = useState('')
 
   useEffect(() => {
     async function loadResume() {
@@ -226,6 +228,24 @@ export default function ResumePage({ params }: { params: Promise<{ id: string }>
               </CardContent>
             </Card>
 
+            <Card className="border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                  <MessageSquare className="h-5 w-5" />
+                  Professional Brief
+                </CardTitle>
+                <CardDescription>
+                  AI-generated summary for your public profile
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BriefGenerator 
+                  resumeId={resume.id} 
+                  onBriefGenerated={setGeneratedBrief}
+                />
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Job Description</CardTitle>
@@ -248,7 +268,8 @@ export default function ResumePage({ params }: { params: Promise<{ id: string }>
       <CreatePublicProfileModal 
         resumeId={resume.id} 
         open={profileModalOpen} 
-        onOpenChange={setProfileModalOpen} 
+        onOpenChange={setProfileModalOpen}
+        initialBrief={generatedBrief}
       />
     </div>
   )
