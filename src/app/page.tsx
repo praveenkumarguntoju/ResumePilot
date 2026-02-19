@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Target, FileText, Briefcase, Zap, Shield, MessageSquare } from "lucide-react";
+import { Sparkles, Target, FileText, Briefcase, Zap, Shield, MessageSquare, GraduationCap } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
 
@@ -11,11 +11,11 @@ export default function Home() {
       <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image 
-              src="/images/resume-pilot.png" 
+            <Image
+              src="/images/resume-pilot.png"
               alt="ResumePilot Logo"
               className="rounded-lg"
-              width={250} 
+              width={250}
               height={250}
             />
           </div>
@@ -64,8 +64,37 @@ export default function Home() {
         </section>
 
         <section className="container mx-auto px-4 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+
+            {/* Create Resume — featured card */}
+            <Link href="/signup" className="contents">
+              <Card className="relative border-2 border-blue-500 dark:border-blue-400 shadow-lg hover:shadow-xl transition-shadow cursor-pointer group">
+                <div className="absolute -top-3 left-4">
+                  <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    <Sparkles className="h-3 w-3" />
+                    AI POWERED
+                  </span>
+                </div>
+                <CardHeader className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Create Resume</p>
+                      <CardTitle className="text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                        Start from scratch
+                      </CardTitle>
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                      <GraduationCap className="h-6 w-6 text-blue-500 dark:text-blue-400" />
+                    </div>
+                  </div>
+                  <CardDescription className="mt-2">
+                    Perfect for students &amp; graduates
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <Target className="h-10 w-10 mb-4 text-blue-600" />
                 <CardTitle>AI Resume Optimization</CardTitle>
@@ -75,7 +104,7 @@ export default function Home() {
               </CardHeader>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <FileText className="h-10 w-10 mb-4 text-green-600" />
                 <CardTitle>Cover Letter Generation</CardTitle>
@@ -85,7 +114,7 @@ export default function Home() {
               </CardHeader>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <Briefcase className="h-10 w-10 mb-4 text-purple-600" />
                 <CardTitle>Application Tracker</CardTitle>
@@ -95,7 +124,7 @@ export default function Home() {
               </CardHeader>
             </Card>
 
-            <Card className="relative border-2 border-orange-500 dark:border-orange-600 shadow-lg">
+            <Card className="relative border-2 border-orange-500 dark:border-orange-600 shadow-lg hover:shadow-xl transition-shadow">
               <div className="absolute -top-3 left-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                 AI-Powered
               </div>
@@ -107,6 +136,7 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
             </Card>
+
           </div>
         </section>
 
