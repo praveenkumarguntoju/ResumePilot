@@ -14,6 +14,7 @@ import { CreatePublicProfileModal } from '@/components/create-public-profile-mod
 import { ResumeModal } from '@/components/resume-modal'
 import { ResumeActionsMenu } from '@/components/resume-actions-menu'
 import { BriefGenerator } from '@/components/brief-generator'
+import { MarkdownRenderer } from '@/components/markdown-renderer'
 
 interface Resume {
   id: string
@@ -181,21 +182,9 @@ export default function ResumePage({ params }: { params: Promise<{ id: string }>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-6 max-h-[300px] overflow-hidden relative">
-                  <div className="prose prose-sm dark:prose-invert max-w-none">
-                    {resume.tailoredResumeText.split('\n').slice(0, 15).map((line, i) => {
-                      const formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                      if (line.trim().endsWith(':') && line.trim().length > 2) {
-                        return <h3 key={i} className="text-base font-bold mt-3 mb-1" dangerouslySetInnerHTML={{ __html: formattedLine }} />
-                      }
-                      if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
-                        return <li key={i} className="ml-4 text-sm" dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^[-•]\s*/, '') }} />
-                      }
-                      if (line.trim() === '') return <br key={i} />
-                      return <p key={i} className="text-sm mb-1" dangerouslySetInnerHTML={{ __html: formattedLine }} />
-                    })}
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-zinc-50 dark:from-zinc-900 to-transparent" />
+                <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 max-h-[300px] overflow-hidden relative border border-zinc-200 dark:border-zinc-800">
+                  <MarkdownRenderer content={resume.tailoredResumeText.split('\n').slice(0, 15).join('\n')} />
+                  <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white dark:from-zinc-900 to-transparent" />
                 </div>
                 <p className="text-xs text-center text-zinc-500 mt-2">
                   Showing preview - Click "View Full Resume" to see complete content

@@ -4,10 +4,11 @@ import { prisma } from '@/lib/prisma'
 import { ResumeUpload } from '@/components/resume-upload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { FileText, Briefcase, FileEdit, Globe } from 'lucide-react'
+import { FileText, Briefcase, FileEdit, Globe, GraduationCap, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { DashboardHeader } from '@/components/dashboard-header'
 import { ResumeCard } from '@/components/resume-card'
+import { MarkdownRenderer } from '@/components/markdown-renderer'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -53,6 +54,28 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <ResumeCard hasResume={hasResume} resumeText={profile?.rawResumeText || undefined} />
 
+          <Link href="/dashboard/create">
+            <Card className="relative overflow-hidden cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 border-2 border-blue-500 dark:border-blue-400 shadow-blue-500/50 dark:shadow-blue-400/50 shadow-lg animate-pulse-slow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Create Resume</CardTitle>
+                <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center">
+                  <GraduationCap className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">Start from scratch</div>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
+                  Perfect for students & graduates
+                </p>
+              </CardContent>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 dark:bg-blue-950/20 rounded-full -mr-16 -mt-16 opacity-50" />
+              <div className="absolute top-2 left-2 bg-gradient-to-r from-purple-600 via-blue-600 to-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                AI POWERED
+              </div>
+            </Card>
+          </Link>
+
           <Link href="/dashboard/resumes">
             <Card className="relative overflow-hidden cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -90,7 +113,7 @@ export default async function DashboardPage() {
           </Link>
 
           <Link href="/dashboard/profiles">
-            <Card className="relative overflow-hidden cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200">
+            <Card className="relative overflow-hidden cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 border-2 border-orange-500 dark:border-orange-400 shadow-orange-500/50 dark:shadow-orange-400/50 shadow-lg animate-pulse-slow">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Public Profiles</CardTitle>
                 <div className="h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-950 flex items-center justify-center">
@@ -104,6 +127,10 @@ export default async function DashboardPage() {
                 </p>
               </CardContent>
               <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50 dark:bg-orange-950/20 rounded-full -mr-16 -mt-16 opacity-50" />
+              <div className="absolute top-2 left-2 bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                AI POWERED
+              </div>
             </Card>
           </Link>
         </div>
@@ -122,8 +149,8 @@ export default async function DashboardPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-4 max-h-[300px] overflow-y-auto mb-4">
-                      <pre className="whitespace-pre-wrap text-xs font-mono text-zinc-700 dark:text-zinc-300">{profile.rawResumeText?.trim().slice(0, 500)}...</pre>
+                    <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 max-h-[600px] overflow-y-auto mb-4 border border-zinc-200 dark:border-zinc-800">
+                      <MarkdownRenderer content={profile.rawResumeText?.trim() || ''} />
                     </div>
                     <Link href="/dashboard/optimize">
                       <Button className="w-full">
