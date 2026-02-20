@@ -26,7 +26,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [skills, setSkills] = useState<string[]>([])
-  const [experience, setExperience] = useState<Array<{ company: string; role: string; summary: string }>>([])
+  const [experienceFromResume, setExperienceFromResume] = useState<string[]>([])
 
   useEffect(() => {
     async function loadProfile() {
@@ -41,7 +41,26 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
         const data = await response.json()
         setProfile(data)
         setSkills(JSON.parse(data.skills))
-        setExperience(JSON.parse(data.experience))
+        // Parse experience from resume text
+        const resumeLines = data.resumeText.split('\n')
+        const expSection = []
+        let inExperienceSection = false
+        
+        for (const line of resumeLines) {
+          const trimmedLine = line.trim()
+          if (trimmedLine.toLowerCase().includes('experience') || trimmedLine.toLowerCase().includes('professional experience')) {
+            inExperienceSection = true
+            continue
+          }
+          if (trimmedLine.toLowerCase().includes('education') || trimmedLine.toLowerCase().includes('projects') || trimmedLine.toLowerCase().includes('skills')) {
+            inExperienceSection = false
+            continue
+          }
+          if (inExperienceSection && trimmedLine && !trimmedLine.startsWith('#')) {
+            expSection.push(trimmedLine)
+          }
+        }
+        setExperienceFromResume(expSection)
       } catch (error) {
         console.error('Failed to load profile:', error)
         router.push('/404')
@@ -147,8 +166,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
               </Card>
             )}
 
-            {/* Experience */}
-            {experience.length > 0 && (
+            {/* Experience from Resume */}
+            {experienceFromResume.length > 0 && (
               <Card className="border-zinc-200 dark:border-zinc-800 shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-2xl">
@@ -158,29 +177,52 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                     Professional Experience
                   </CardTitle>
                   <CardDescription className="text-base">
-                    Career highlights and achievements
+                    Career highlights from resume
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-8">
-                  {experience.map((exp, i) => (
-                    <div key={i} className="relative pl-8 pb-8 last:pb-0">
-                      <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-500 to-blue-500"></div>
-                      <div className="absolute left-0 top-0 w-4 h-4 -ml-[7px] rounded-full bg-purple-500 border-4 border-white dark:border-zinc-900"></div>
+                <CardContent className="space-y-6">
+                  <div className="relative">
+                    {experienceFromResume.map((line, i) => {
+                      const formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                      const isBold = line.includes('**') && !line.startsWith('-') && !line.startsWith('•')
+                      const isBullet = line.trim().startsWith('-') || line.trim().startsWith('•')
+                      const isEmpty = line.trim() === ''
                       
-                      <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
-                        <h3 className="font-bold text-xl text-zinc-900 dark:text-white mb-2">
-                          {exp.role}
-                        </h3>
-                        <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 mb-4">
-                          <Building2 className="h-4 w-4" />
-                          <span className="font-medium">{exp.company}</span>
+                      if (isEmpty) return <div key={i} className="h-4" />
+                      
+                      if (isBold) {
+                        return (
+                          <div key={i} className="mb-4">
+                            <h4 
+                              className="text-lg font-semibold text-zinc-900 dark:text-white mb-2"
+                              dangerouslySetInnerHTML={{ __html: formattedLine }}
+                            />
+                          </div>
+                        )
+                      }
+                      
+                      if (isBullet) {
+                        return (
+                          <div key={i} className="flex items-start gap-3 mb-3 ml-4">
+                            <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 flex-shrink-0"></div>
+                            <p 
+                              className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed"
+                              dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^[-•]\s*/, '') }}
+                            />
+                          </div>
+                        )
+                      }
+                      
+                      return (
+                        <div key={i} className="mb-3">
+                          <p 
+                            className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed"
+                            dangerouslySetInnerHTML={{ __html: formattedLine }}
+                          />
                         </div>
-                        <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
-                          {exp.summary}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                      )
+                    })}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -190,22 +232,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
               <CardHeader className="pb-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <CardTitle className="text-2xl mb-2">Optimized Resume</CardTitle>
-                    <CardDescription className="text-base">
-                      Tailored for this specific job posting
-                    </CardDescription>
+                    <CardTitle className="text-2xl mb-2">Resume</CardTitle>
                   </div>
                   <div className="flex gap-3">
-                    <ResumeModal resumeText={profile.resumeText} />
-                    <Button 
-                      variant="outline" 
-                      size="default"
-                      className="hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
-                      onClick={() => window.open(`/api/profile/${profile.slug}/download`, '_blank')}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
+                    <ResumeModal resumeText={profile.resumeText} forceTemplate="modern" />
                   </div>
                 </div>
               </CardHeader>

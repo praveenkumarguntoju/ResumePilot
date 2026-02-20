@@ -13,11 +13,12 @@ type TemplateType = 'simple' | 'modern' | 'classic' | 'minimal'
 
 interface ResumeModalProps {
   resumeText: string
+  forceTemplate?: TemplateType
 }
 
-export function ResumeModal({ resumeText }: ResumeModalProps) {
+export function ResumeModal({ resumeText, forceTemplate }: ResumeModalProps) {
   const [open, setOpen] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('modern')
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>(forceTemplate || 'modern')
 
   const handleDownloadPDF = () => {
     const element = document.getElementById('resume-preview-content')
@@ -90,48 +91,50 @@ export function ResumeModal({ resumeText }: ResumeModalProps) {
         </DialogHeader>
 
         {/* Template Selector */}
-        <div className="flex items-center gap-3 py-4 border-b border-zinc-200 dark:border-zinc-800">
-          <Layout className="h-4 w-4 text-zinc-500" />
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Template:</span>
-          <div className="flex gap-2">
+        {!forceTemplate && (
+          <div className="flex items-center gap-3 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <Layout className="h-4 w-4 text-zinc-500" />
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Template:</span>
+            <div className="flex gap-2">
+              <Button
+                variant={selectedTemplate === 'modern' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedTemplate('modern')}
+              >
+                Modern
+              </Button>
+              <Button
+                variant={selectedTemplate === 'classic' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedTemplate('classic')}
+              >
+                Classic
+              </Button>
+              <Button
+                variant={selectedTemplate === 'minimal' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedTemplate('minimal')}
+              >
+                Minimal
+              </Button>
+              <Button
+                variant={selectedTemplate === 'simple' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedTemplate('simple')}
+              >
+                Simple
+              </Button>
+            </div>
             <Button
-              variant={selectedTemplate === 'modern' ? 'default' : 'outline'}
+              onClick={handleDownloadPDF}
               size="sm"
-              onClick={() => setSelectedTemplate('modern')}
+              className="ml-auto"
             >
-              Modern
-            </Button>
-            <Button
-              variant={selectedTemplate === 'classic' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedTemplate('classic')}
-            >
-              Classic
-            </Button>
-            <Button
-              variant={selectedTemplate === 'minimal' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedTemplate('minimal')}
-            >
-              Minimal
-            </Button>
-            <Button
-              variant={selectedTemplate === 'simple' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedTemplate('simple')}
-            >
-              Simple
+              <Download className="h-4 w-4 mr-2" />
+              Download PDF
             </Button>
           </div>
-          <Button
-            onClick={handleDownloadPDF}
-            size="sm"
-            className="ml-auto"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download PDF
-          </Button>
-        </div>
+        )}
 
         {/* Resume Preview */}
         <div className="flex-1 overflow-y-auto bg-zinc-50 dark:bg-zinc-950 p-6 rounded-lg" >
