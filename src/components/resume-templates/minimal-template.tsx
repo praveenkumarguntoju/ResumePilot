@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { extractNameFromResume } from '@/lib/resume-utils'
 
 interface MinimalTemplateProps {
   content: string
@@ -21,6 +22,11 @@ export function MinimalTemplate({ content }: MinimalTemplateProps) {
         sections[currentSection].push(line)
       }
     }
+
+    // Debug logging
+    console.log('Parsed sections:', Object.keys(sections))
+    console.log('Technical skills section:', sections['technical skills'])
+    console.log('Skills section:', sections['skills'])
 
     return sections
   }
@@ -52,7 +58,7 @@ export function MinimalTemplate({ content }: MinimalTemplateProps) {
   }
 
   const sections = parseResume(content)
-  const name = sections.header?.[0]?.replace(/\*\*/g, '') || 'Your Name'
+  const name = extractNameFromResume(content)
 
   return (
     <div className="bg-white text-zinc-900 p-8 shadow-lg rounded-lg max-w-4xl mx-auto">
@@ -69,33 +75,33 @@ export function MinimalTemplate({ content }: MinimalTemplateProps) {
       {/* Clean Single Column */}
       <div className="space-y-8">
         {/* Skills - MOVED TO SECOND POSITION */}
-        {(sections['technical skills'] || sections['soft skills']) && (
+        {(sections['technical skills'] || sections['skills'] || sections['technical'] || sections['soft skills'] || sections['soft skills & languages']) && (
           <div>
             <h2 className="text-xs font-semibold text-zinc-900 mb-3 uppercase tracking-widest">
               Skills
             </h2>
             <div className="pl-4 border-l border-zinc-200 space-y-3">
-              {sections['technical skills'] && (
+              {(sections['technical skills'] || sections['skills'] || sections['technical']) && (
                 <div>
                   <p className="text-xs font-medium text-zinc-700 mb-1">Technical</p>
                   <div className="flex flex-wrap gap-2">
-                    {sections['technical skills'].map((line, idx) => (
+                    {(sections['technical skills'] || sections['skills'] || sections['technical']).map((line, idx) => (
                       <span key={idx} className="text-xs text-zinc-600 font-light">
                         {renderBoldText(line.replace(/^-\s*/, '').trim())}
-                        {idx < sections['technical skills'].length - 1 && ' ·'}
+                        {idx < (sections['technical skills'] || sections['skills'] || sections['technical']).length - 1 && ' ·'}
                       </span>
                     ))}
                   </div>
                 </div>
               )}
-              {sections['soft skills'] && (
+              {(sections['soft skills'] || sections['soft skills & languages'] || sections['languages']) && (
                 <div>
                   <p className="text-xs font-medium text-zinc-700 mb-1">Soft Skills</p>
                   <div className="flex flex-wrap gap-2">
-                    {sections['soft skills'].map((line, idx) => (
+                    {(sections['soft skills'] || sections['soft skills & languages'] || sections['languages']).map((line, idx) => (
                       <span key={idx} className="text-xs text-zinc-600 font-light">
-                        {renderBoldText(line.replace(/^-\s*/, '').trim())}
-                        {idx < sections['soft skills'].length - 1 && ' ·'}
+                        {line.replace(/^-\s*/, '').trim()}
+                        {idx < (sections['soft skills'] || sections['soft skills & languages'] || sections['languages']).length - 1 && ' ·'}
                       </span>
                     ))}
                   </div>

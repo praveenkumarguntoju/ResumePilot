@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { getOpenAI } from '@/lib/openai'
 import { z } from 'zod'
+import { generateResumeOptimizationPrompt } from '@/lib/resume-prompt-template'
 
 const generateResumeSchema = z.object({
   userType: z.enum(['student', 'career-change']),

@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import OpenAI from 'openai'
 import { z } from 'zod'
+import { generateResumeOptimizationPrompt } from '@/lib/resume-prompt-template'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
       include: { resumes: true },
     })
 
-    if (user?.planType === 'free' && user.resumes.length >= 3) {
+    if (user?.planType === 'free' && user.resumes.length >= 10) {
       return NextResponse.json(
         { error: 'Free plan limit reached. Upgrade to continue optimizing resumes.' },
         { status: 403 }
@@ -75,26 +76,12 @@ export async function POST(request: Request) {
       )
     }
 
-    const prompt = `You are an expert resume writer and ATS optimization specialist. 
-
-Original Resume:
-${profile.rawResumeText}
-
-Job Title: ${jobTitle}
-Company: ${company}
-Job Description:
-${jobDescription}
-
-Task: Optimize this resume for the job posting above. Follow these guidelines:
-1. Tailor the resume to match the job requirements and keywords
-2. Highlight relevant experience and skills from the original resume
-3. Use action verbs and quantifiable achievements
-4. Ensure ATS compatibility (simple formatting, relevant keywords)
-5. Keep the same structure but optimize content
-6. Do NOT fabricate experience - only enhance what's already there
-7. Match the tone and language used in the job description
-
-Return ONLY the optimized resume text, formatted professionally. Do not include any explanations or meta-commentary.`
+    const prompt = generateResumeOptimizationPrompt({
+      rawResumeText: profile.rawResumeText,
+      jobTitle,
+      company,
+      jobDescription
+    })
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',

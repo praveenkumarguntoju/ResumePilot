@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import OpenAI from 'openai'
 import { z } from 'zod'
+import { generateResumeOptimizationPrompt } from '@/lib/resume-prompt-template'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -74,27 +75,29 @@ export async function POST(request: Request) {
       )
     }
 
-    const prompt = `You are an expert resume writer and ATS optimization specialist. 
+    if (!existingResume.jobDescription) {
+      return NextResponse.json(
+        { error: 'Job description is required for re-optimization' },
+        { status: 400 }
+      )
+    }
 
-Original Resume:
-${profile.rawResumeText}
+    const basePrompt = generateResumeOptimizationPrompt({
+      rawResumeText: profile.rawResumeText,
+      jobTitle: existingResume.jobTitle,
+      company: existingResume.company,
+      jobDescription: existingResume.jobDescription
+    })
 
-Job Title: ${existingResume.jobTitle}
-Company: ${existingResume.company}
-Job Description:
-${existingResume.jobDescription}
+    const prompt = `${basePrompt}
 
-Task: Create a NEW optimized version of this resume for the same job posting. This is a re-optimization, so provide a DIFFERENT approach than before while still following these guidelines:
-1. Tailor the resume to match the job requirements and keywords
-2. Highlight relevant experience and skills from the original resume
-3. Use action verbs and quantifiable achievements
-4. Ensure ATS compatibility (simple formatting, relevant keywords)
-5. Keep the same structure but optimize content differently
-6. Do NOT fabricate experience - only enhance what's already there
-7. Match the tone and language used in the job description
-8. Try different phrasing and emphasis compared to previous versions
-
-Return ONLY the optimized resume text, formatted professionally. Do not include any explanations or meta-commentary.`
+ADDITIONAL RE-OPTIMIZATION INSTRUCTIONS:
+- This is a re-optimization, so provide a DIFFERENT approach than previous versions
+- Try different phrasing and emphasis compared to previous optimizations
+- Use different action verbs and sentence structures
+- Reorganize the way achievements are presented
+- Maintain the same structure but vary the content presentation
+- Keep all the CRITICAL RULES and STRUCTURE requirements above`
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -116,13 +119,6 @@ Return ONLY the optimized resume text, formatted professionally. Do not include 
 
     if (!optimizedResume) {
       throw new Error('Failed to generate optimized resume')
-    }
-
-    if (!existingResume.jobDescription) {
-      return NextResponse.json(
-        { error: 'Job description is required for re-optimization' },
-        { status: 400 }
-      )
     }
 
     const atsScore = calculateATSScore(optimizedResume, existingResume.jobDescription)

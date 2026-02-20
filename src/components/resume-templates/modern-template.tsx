@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { extractNameFromResume } from '@/lib/resume-utils'
 
 interface ModernTemplateProps {
   content: string
@@ -21,6 +22,12 @@ export function ModernTemplate({ content }: ModernTemplateProps) {
         sections[currentSection].push(line)
       }
     }
+
+    // Debug logging
+    console.log('Parsed sections:', Object.keys(sections))
+    console.log('Technical skills section:', sections['technical skills'])
+    console.log('Skills section:', sections['skills'])
+    console.log('All sections data:', sections)
 
     return sections
   }
@@ -52,7 +59,7 @@ export function ModernTemplate({ content }: ModernTemplateProps) {
   }
 
   const sections = parseResume(content)
-  const name = sections.header?.[0]?.replace(/\*\*/g, '') || 'Your Name'
+  const name = extractNameFromResume(content)
 
   return (
     <div className="bg-white text-zinc-900 p-8 shadow-lg rounded-lg max-w-4xl mx-auto">
@@ -148,11 +155,11 @@ export function ModernTemplate({ content }: ModernTemplateProps) {
           )}
 
           {/* Technical Skills */}
-          {sections['technical skills'] && (
+          {(sections['technical skills'] || sections['skills'] || sections['technical'] || sections['core competencies']) && (
             <div>
               <h2 className="text-lg font-bold text-blue-600 mb-3">SKILLS</h2>
               <div className="space-y-1">
-                {sections['technical skills'].map((line, idx) => (
+                {(sections['technical skills'] || sections['skills'] || sections['technical'] || sections['core competencies']).map((line, idx) => (
                   <p key={idx} className="text-xs text-zinc-700">
                     {renderBoldText(line.replace(/^-\s*/, '• '))}
                   </p>
@@ -162,11 +169,11 @@ export function ModernTemplate({ content }: ModernTemplateProps) {
           )}
 
           {/* Soft Skills */}
-          {sections['soft skills'] && (
+          {(sections['soft skills'] || sections['soft skills & languages'] || sections['languages'] || sections['interpersonal skills']) && (
             <div>
               <h2 className="text-lg font-bold text-blue-600 mb-3">SOFT SKILLS</h2>
               <div className="space-y-1">
-                {sections['soft skills'].map((line, idx) => (
+                {(sections['soft skills'] || sections['soft skills & languages'] || sections['languages'] || sections['interpersonal skills']).map((line, idx) => (
                   <p key={idx} className="text-xs text-zinc-700">
                     {line.replace(/\*\*/g, '').replace(/^-\s*/, '• ')}
                   </p>

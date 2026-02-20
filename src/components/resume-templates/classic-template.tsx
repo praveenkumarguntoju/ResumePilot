@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { extractNameFromResume } from '@/lib/resume-utils'
 
 interface ClassicTemplateProps {
   content: string
@@ -21,6 +22,11 @@ export function ClassicTemplate({ content }: ClassicTemplateProps) {
         sections[currentSection].push(line)
       }
     }
+
+    // Debug logging
+    console.log('Parsed sections:', Object.keys(sections))
+    console.log('Technical skills section:', sections['technical skills'])
+    console.log('Skills section:', sections['skills'])
 
     return sections
   }
@@ -52,7 +58,7 @@ export function ClassicTemplate({ content }: ClassicTemplateProps) {
   }
 
   const sections = parseResume(content)
-  const name = sections.header?.[0]?.replace(/\*\*/g, '') || 'Your Name'
+  const name = extractNameFromResume(content)
 
   return (
     <div className="bg-white text-zinc-900 p-8 shadow-lg rounded-lg max-w-4xl mx-auto">
@@ -69,12 +75,12 @@ export function ClassicTemplate({ content }: ClassicTemplateProps) {
       {/* Single Column Layout */}
       <div className="space-y-6">
         {/* Skills - Table Layout - MOVED TO SECOND POSITION */}
-        {(sections['technical skills'] || sections['soft skills']) && (
+        {(sections['technical skills'] || sections['skills'] || sections['technical'] || sections['soft skills'] || sections['soft skills & languages']) && (
           <div>
             <h2 className="text-lg font-serif font-bold text-zinc-900 mb-3 pb-1 border-b border-zinc-300 uppercase tracking-wide">
               Skills
             </h2>
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse border border-zinc-300">
               <thead>
                 <tr className="border-b border-zinc-300">
                   <th className="text-left py-2 px-4 bg-zinc-50 font-serif font-bold text-sm text-zinc-900 uppercase tracking-wide">
@@ -88,9 +94,9 @@ export function ClassicTemplate({ content }: ClassicTemplateProps) {
               <tbody>
                 <tr>
                   <td className="align-top py-3 px-4 border-r border-zinc-200">
-                    {sections['technical skills'] ? (
+                    {(sections['technical skills'] || sections['skills'] || sections['technical']) ? (
                       <div className="space-y-1">
-                        {sections['technical skills'].map((line, idx) => (
+                        {(sections['technical skills'] || sections['skills'] || sections['technical']).map((line, idx) => (
                           <p key={idx} className="text-sm text-zinc-700">
                             {renderBoldText(line.replace(/^-\s*/, '• '))}
                           </p>
@@ -101,11 +107,11 @@ export function ClassicTemplate({ content }: ClassicTemplateProps) {
                     )}
                   </td>
                   <td className="align-top py-3 px-4">
-                    {sections['soft skills'] ? (
+                    {(sections['soft skills'] || sections['soft skills & languages'] || sections['languages']) ? (
                       <div className="space-y-1">
-                        {sections['soft skills'].map((line, idx) => (
+                        {(sections['soft skills'] || sections['soft skills & languages'] || sections['languages']).map((line, idx) => (
                           <p key={idx} className="text-sm text-zinc-700">
-                            {renderBoldText(line.replace(/^-\s*/, '• '))}
+                            {line.replace(/\*\*/g, '').replace(/^-\s*/, '• ')}
                           </p>
                         ))}
                       </div>
