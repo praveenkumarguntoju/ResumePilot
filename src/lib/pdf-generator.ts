@@ -2,87 +2,43 @@ import { PDFDocument, rgb, StandardFonts, PDFFont, PDFPage } from 'pdf-lib'
 
 interface ResumeData {
   name: string
-  title: string
-  email: string
-  phone: string
-  summary: string
-  skills: string[]
+  professionalSummary: string[]
+  technicalSkills: string[]
+  softSkills: string[]
   experience: string[]
+  projects: string[]
+  education: string[]
+  certifications: string[]
 }
 
 function parseResumeText(resumeText: string): ResumeData {
   const lines = resumeText.split('\n')
-  let name = ''
-  let title = ''
-  let email = ''
-  let phone = ''
-  let summary = ''
-  let skills: string[] = []
-  let experience: string[] = []
+  const sections: { [key: string]: string[] } = {}
+  let currentSection = 'header'
   
-  let inSummary = false
-  let inSkills = false
-  let inExperience = false
-  
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim()
-    const lineLower = line.toLowerCase()
+  for (const line of lines) {
+    const trimmedLine = line.trim()
+    const lineLower = trimmedLine.toLowerCase()
     
-    if (i === 0 && line) {
-      name = line.replace(/\*\*/g, '')
-      continue
-    }
-    if (i === 1 && line) {
-      title = line.replace(/\*\*/g, '')
-      continue
-    }
-    
-    if (lineLower.includes('email:')) {
-      email = line.split(':')[1]?.trim() || ''
-      continue
-    }
-    if (lineLower.includes('phone:')) {
-      phone = line.split(':')[1]?.trim() || ''
-      continue
-    }
-    
-    if (lineLower.includes('professional summary') || lineLower.includes('career objective')) {
-      inSummary = true
-      inSkills = false
-      inExperience = false
-      continue
-    }
-    if (lineLower.includes('technical skills') || lineLower.includes('key skills')) {
-      inSummary = false
-      inSkills = true
-      inExperience = false
-      continue
-    }
-    if (lineLower.includes('professional experience') || lineLower.includes('experience')) {
-      inSummary = false
-      inSkills = false
-      inExperience = true
-      continue
-    }
-    
-    if (line.includes('**') && line.length < 50) {
-      inSummary = false
-      inSkills = false
-      inExperience = false
-    }
-    
-    if (inSummary && line && !line.includes('**')) {
-      summary += line + ' '
-    }
-    if (inSkills && line.startsWith('-')) {
-      skills.push(line.substring(1).trim())
-    }
-    if (inExperience && line) {
-      experience.push(line)
+    if (trimmedLine.startsWith('# ') || trimmedLine.startsWith('## ') || trimmedLine.startsWith('### ')) {
+      currentSection = trimmedLine.replace(/^#+\s+/, '').toLowerCase()
+      sections[currentSection] = []
+    } else if (trimmedLine) {
+      if (!sections[currentSection]) sections[currentSection] = []
+      sections[currentSection].push(trimmedLine)
     }
   }
   
-  return { name, title, email, phone, summary, skills, experience }
+  return {
+    name: sections.header?.[0]?.replace(/\*\*/g, '') || 'Your Name',
+    professionalSummary: sections['professional summary'] || [],
+    technicalSkills: sections['technical skills'] || sections['skills'] || [],
+    softSkills: sections['soft skills'] || sections['soft skills & languages'] || [],
+    experience: sections['experience'] || sections['professional experience'] || [],
+    projects: sections['projects'] || [],
+    education: sections['education'] || [],
+    certifications: sections['certifications'] || []
+  }
 }
 
 function wrapText(text: string, maxWidth: number, font: PDFFont, size: number): string[] {
@@ -130,188 +86,279 @@ function drawSectionHeader(
 }
 
 export async function generateResumePDF(resumeText: string): Promise<Uint8Array> {
-  const pdfDoc = await PDFDocument.create()
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
-  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
-  
-  const pageWidth = 612
-  const pageHeight = 792
-  const sidebarWidth = 180
-  const sidebarPadding = 20
-  const mainContentX = sidebarWidth + 25
-  const mainContentWidth = pageWidth - mainContentX - 25
-  const headerHeight = 100
-  
-  const page = pdfDoc.addPage([pageWidth, pageHeight])
-  
-  page.drawRectangle({
-    x: 0,
-    y: pageHeight - headerHeight,
-    width: pageWidth,
-    height: headerHeight,
-    color: rgb(0.29, 0.35, 0.41),
-  })
-  
-  page.drawRectangle({
-    x: 0,
-    y: 0,
-    width: sidebarWidth,
-    height: pageHeight - headerHeight,
-    color: rgb(0.95, 0.95, 0.95),
-  })
-  
-  const { name, title, email, phone, summary, skills, experience } = parseResumeText(resumeText)
-  
-  const nameWidth = boldFont.widthOfTextAtSize(name.toUpperCase(), 22)
-  const nameX = mainContentX + (mainContentWidth - nameWidth) / 2
-  page.drawText(name.toUpperCase(), {
-    x: nameX,
-    y: pageHeight - 55,
-    size: 22,
-    font: boldFont,
-    color: rgb(1, 1, 1),
-  })
-  
-  let sidebarY = pageHeight - headerHeight - 30
-  
-  page.drawText('CONTACT', {
-    x: sidebarPadding,
-    y: sidebarY,
-    size: 11,
-    font: boldFont,
-    color: rgb(0.29, 0.35, 0.41),
-  })
-  
-  page.drawLine({
-    start: { x: sidebarPadding, y: sidebarY - 3 },
-    end: { x: sidebarWidth - sidebarPadding, y: sidebarY - 3 },
-    thickness: 1,
-    color: rgb(0.29, 0.35, 0.41),
-  })
-  sidebarY -= 25
-  
-  if (phone) {
-    page.drawText('Phone:', {
-      x: sidebarPadding,
-      y: sidebarY,
-      size: 8,
+  try {
+    console.log('PDF generator: Starting generation')
+    console.log('Input text length:', resumeText.length)
+    
+    const pdfDoc = await PDFDocument.create()
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
+    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+    
+    const pageWidth = 612
+    const pageHeight = 792
+    const margin = 50
+    const contentWidth = pageWidth - (margin * 2)
+    let currentY = pageHeight - margin
+    
+    const page = pdfDoc.addPage([pageWidth, pageHeight])
+    
+    console.log('PDF generator: Parsing resume text')
+    const { name, professionalSummary, technicalSkills, softSkills, experience, projects, education, certifications } = parseResumeText(resumeText)
+    
+    console.log('Parsed data:', {
+      name,
+      professionalSummaryLength: professionalSummary.length,
+      technicalSkillsLength: technicalSkills.length,
+      softSkillsLength: softSkills.length,
+      experienceLength: experience.length,
+      projectsLength: projects.length,
+      educationLength: education.length,
+      certificationsLength: certifications.length
+    })
+    
+    // Header with name
+    page.drawText(name.toUpperCase(), {
+      x: margin,
+      y: currentY,
+      size: 24,
       font: boldFont,
-      color: rgb(0.2, 0.2, 0.2),
+      color: rgb(0.1, 0.1, 0.1),
     })
-    sidebarY -= 14
-    page.drawText(phone, {
-      x: sidebarPadding,
-      y: sidebarY,
-      size: 9,
-      font: font,
-      color: rgb(0.3, 0.3, 0.3),
-    })
-    sidebarY -= 25
-  }
-  
-  if (email) {
-    page.drawText('Email:', {
-      x: sidebarPadding,
-      y: sidebarY,
-      size: 8,
-      font: boldFont,
-      color: rgb(0.2, 0.2, 0.2),
-    })
-    sidebarY -= 14
+    currentY -= 35
     
-    const maxEmailWidth = sidebarWidth - (sidebarPadding * 2)
-    let emailLines: string[] = []
-    if (font.widthOfTextAtSize(email, 8) > maxEmailWidth) {
-      const parts = email.split('@')
-      emailLines = [parts[0], '@' + parts[1]]
-    } else {
-      emailLines = [email]
-    }
-    
-    for (const emailLine of emailLines) {
-      page.drawText(emailLine, {
-        x: sidebarPadding,
-        y: sidebarY,
-        size: 8,
-        font: font,
-        color: rgb(0.3, 0.3, 0.3),
+    // Professional Summary
+    if (professionalSummary.length > 0) {
+      console.log('Adding professional summary section')
+      page.drawText('PROFESSIONAL SUMMARY', {
+        x: margin,
+        y: currentY,
+        size: 14,
+        font: boldFont,
+        color: rgb(0.2, 0.4, 0.8),
       })
-      sidebarY -= 12
+      currentY -= 20
+      
+      for (const line of professionalSummary) {
+        const cleanLine = line.replace(/\*\*/g, '').replace(/^[-•]\s*/, '').trim()
+        if (cleanLine) {
+          const wrappedLines = wrapText(cleanLine, contentWidth, font, 10)
+          for (const wrappedLine of wrappedLines) {
+            if (currentY < margin) break
+            page.drawText(wrappedLine, {
+              x: margin,
+              y: currentY,
+              size: 10,
+              font: font,
+              color: rgb(0.2, 0.2, 0.2),
+            })
+            currentY -= 14
+          }
+        }
+      }
+      currentY -= 15
     }
-    sidebarY -= 15
-  }
-  
-  let mainY = pageHeight - headerHeight - 30
-  
-  if (summary) {
-    drawSectionHeader(page, 'CAREER OBJECTIVE', mainContentX, mainY, pageWidth - 25, boldFont)
-    mainY -= 22
     
-    const summaryLines = wrapText(summary.trim(), mainContentWidth, font, 9)
-    for (const line of summaryLines) {
-      if (mainY < 100) break
-      page.drawText(line, {
-        x: mainContentX,
-        y: mainY,
-        size: 9,
-        font: font,
-        color: rgb(0.2, 0.2, 0.2),
+    // Technical Skills
+    if (technicalSkills.length > 0) {
+      console.log('Adding technical skills section')
+      page.drawText('TECHNICAL SKILLS', {
+        x: margin,
+        y: currentY,
+        size: 14,
+        font: boldFont,
+        color: rgb(0.2, 0.4, 0.8),
       })
-      mainY -= 13
+      currentY -= 20
+      
+      for (const line of technicalSkills) {
+        const cleanLine = line.replace(/\*\*/g, '').replace(/^[-•]\s*/, '').trim()
+        if (cleanLine) {
+          const wrappedLines = wrapText('• ' + cleanLine, contentWidth, font, 10)
+          for (const wrappedLine of wrappedLines) {
+            if (currentY < margin) break
+            page.drawText(wrappedLine, {
+              x: margin,
+              y: currentY,
+              size: 10,
+              font: font,
+              color: rgb(0.2, 0.2, 0.2),
+            })
+            currentY -= 14
+          }
+        }
+      }
+      currentY -= 15
     }
-    mainY -= 15
-  }
-  
-  if (skills.length > 0 && mainY > 150) {
-    drawSectionHeader(page, 'KEY SKILLS', mainContentX, mainY, pageWidth - 25, boldFont)
-    mainY -= 22
     
-    for (const skill of skills) {
-      if (mainY < 100) break
-      const skillLines = wrapText(skill, mainContentWidth - 15, font, 9)
-      for (const skillLine of skillLines) {
-        page.drawText('• ' + skillLine, {
-          x: mainContentX,
-          y: mainY,
-          size: 9,
-          font: font,
-          color: rgb(0.2, 0.2, 0.2),
-        })
-        mainY -= 13
+    // Soft Skills
+    if (softSkills.length > 0) {
+      console.log('Adding soft skills section')
+      page.drawText('SOFT SKILLS', {
+        x: margin,
+        y: currentY,
+        size: 14,
+        font: boldFont,
+        color: rgb(0.2, 0.4, 0.8),
+      })
+      currentY -= 20
+      
+      for (const line of softSkills) {
+        const cleanLine = line.replace(/\*\*/g, '').replace(/^[-•]\s*/, '').trim()
+        if (cleanLine) {
+          const wrappedLines = wrapText('• ' + cleanLine, contentWidth, font, 10)
+          for (const wrappedLine of wrappedLines) {
+            if (currentY < margin) break
+            page.drawText(wrappedLine, {
+              x: margin,
+              y: currentY,
+              size: 10,
+              font: font,
+              color: rgb(0.2, 0.2, 0.2),
+            })
+            currentY -= 14
+          }
+        }
+      }
+      currentY -= 15
+    }
+    
+    // Experience
+    if (experience.length > 0) {
+      console.log('Adding experience section')
+      page.drawText('EXPERIENCE', {
+        x: margin,
+        y: currentY,
+        size: 14,
+        font: boldFont,
+        color: rgb(0.2, 0.4, 0.8),
+      })
+      currentY -= 20
+      
+      for (const line of experience) {
+        const cleanLine = line.replace(/\*\*/g, '').replace(/^[-•]\s*/, '').trim()
+        if (cleanLine) {
+          const isBold = line.includes('**')
+          const textFont = isBold ? boldFont : font
+          const wrappedLines = wrapText(cleanLine, contentWidth, textFont, 10)
+          for (const wrappedLine of wrappedLines) {
+            if (currentY < margin) break
+            page.drawText(wrappedLine, {
+              x: margin,
+              y: currentY,
+              size: 10,
+              font: textFont,
+              color: rgb(0.2, 0.2, 0.2),
+            })
+            currentY -= 14
+          }
+        }
+      }
+      currentY -= 15
+    }
+    
+    // Projects
+    if (projects.length > 0) {
+      console.log('Adding projects section')
+      page.drawText('PROJECTS', {
+        x: margin,
+        y: currentY,
+        size: 14,
+        font: boldFont,
+        color: rgb(0.2, 0.4, 0.8),
+      })
+      currentY -= 20
+      
+      for (const line of projects) {
+        const cleanLine = line.replace(/\*\*/g, '').replace(/^[-•]\s*/, '').trim()
+        if (cleanLine) {
+          const isBold = line.includes('**')
+          const textFont = isBold ? boldFont : font
+          const wrappedLines = wrapText(cleanLine, contentWidth, textFont, 10)
+          for (const wrappedLine of wrappedLines) {
+            if (currentY < margin) break
+            page.drawText(wrappedLine, {
+              x: margin,
+              y: currentY,
+              size: 10,
+              font: textFont,
+              color: rgb(0.2, 0.2, 0.2),
+            })
+            currentY -= 14
+          }
+        }
+      }
+      currentY -= 15
+    }
+    
+    // Education
+    if (education.length > 0) {
+      console.log('Adding education section')
+      page.drawText('EDUCATION', {
+        x: margin,
+        y: currentY,
+        size: 14,
+        font: boldFont,
+        color: rgb(0.2, 0.4, 0.8),
+      })
+      currentY -= 20
+      
+      for (const line of education) {
+        const cleanLine = line.replace(/\*\*/g, '').replace(/^[-•]\s*/, '').trim()
+        if (cleanLine) {
+          const wrappedLines = wrapText(cleanLine, contentWidth, font, 10)
+          for (const wrappedLine of wrappedLines) {
+            if (currentY < margin) break
+            page.drawText(wrappedLine, {
+              x: margin,
+              y: currentY,
+              size: 10,
+              font: font,
+              color: rgb(0.2, 0.2, 0.2),
+            })
+            currentY -= 14
+          }
+        }
+      }
+      currentY -= 15
+    }
+    
+    // Certifications
+    if (certifications.length > 0) {
+      console.log('Adding certifications section')
+      page.drawText('CERTIFICATIONS', {
+        x: margin,
+        y: currentY,
+        size: 14,
+        font: boldFont,
+        color: rgb(0.2, 0.4, 0.8),
+      })
+      currentY -= 20
+      
+      for (const line of certifications) {
+        const cleanLine = line.replace(/\*\*/g, '').replace(/^[-•]\s*/, '').trim()
+        if (cleanLine) {
+          const wrappedLines = wrapText('• ' + cleanLine, contentWidth, font, 10)
+          for (const wrappedLine of wrappedLines) {
+            if (currentY < margin) break
+            page.drawText(wrappedLine, {
+              x: margin,
+              y: currentY,
+              size: 10,
+              font: font,
+              color: rgb(0.2, 0.2, 0.2),
+            })
+            currentY -= 14
+          }
+        }
       }
     }
-    mainY -= 15
-  }
-  
-  if (experience.length > 0 && mainY > 100) {
-    drawSectionHeader(page, 'EXPERIENCE', mainContentX, mainY, pageWidth - 25, boldFont)
-    mainY -= 22
-    
-    for (const exp of experience) {
-      if (mainY < 80) break
-      
-      const cleanExp = exp.replace(/\*\*/g, '')
-      const isBold = exp.includes('**')
-      const expFont = isBold ? boldFont : font
-      const expSize = isBold ? 10 : 9
-      
-      const wrappedLines = wrapText(cleanExp, mainContentWidth, expFont, expSize)
-      
-      for (const wrappedLine of wrappedLines) {
-        if (mainY < 80) break
-        page.drawText(wrappedLine, {
-          x: mainContentX,
-          y: mainY,
-          size: expSize,
-          font: expFont,
-          color: rgb(0.2, 0.2, 0.2),
-        })
-        mainY -= 13
-      }
-      
-      if (isBold) mainY -= 4
-    }
-  }
 
-  return await pdfDoc.save()
+    console.log('PDF generator: Saving document')
+    const pdfBytes = await pdfDoc.save()
+    console.log('PDF generator: Document saved, size:', pdfBytes.length)
+    return pdfBytes
+  } catch (error) {
+    console.error('PDF generator error:', error)
+    throw error
+  }
 }

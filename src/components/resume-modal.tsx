@@ -78,7 +78,7 @@ export function ResumeModal({ resumeText }: ResumeModalProps) {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Eye className="h-4 w-4 mr-2" />
-          View Full Resume
+          View Full Resume & Download
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[70vw] w-[70vw] max-h-[90vh] overflow-hidden flex flex-col" style={{ maxWidth: '70%' }}>

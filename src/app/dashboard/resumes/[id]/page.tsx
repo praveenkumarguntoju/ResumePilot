@@ -178,7 +178,7 @@ export default function ResumePage({ params }: { params: Promise<{ id: string }>
                 </div>
                 <div className="flex gap-2">
                   <ResumeModal resumeText={resume.tailoredResumeText} />
-                  <ResumeActionsMenu resumeId={resume.id} />
+                  {/* <ResumeActionsMenu resumeId={resume.id} /> */}
                 </div>
               </CardHeader>
               <CardContent>
