@@ -32,7 +32,10 @@ export function ReviewStep({ generatedResume, onBack, formData }: ReviewStepProp
       const response = await fetch('/api/profile/save-resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resumeText: resume }),
+        body: JSON.stringify({ 
+          resumeText: resume,
+          contact: formData?.contact 
+        }),
       })
 
       if (response.ok) {
@@ -157,9 +160,9 @@ export function ReviewStep({ generatedResume, onBack, formData }: ReviewStepProp
           />
         ) : (
           <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden max-h-[600px] overflow-y-auto">
-            {selectedTemplate === 'modern' && <ModernTemplate content={resume} />}
-            {selectedTemplate === 'classic' && <ClassicTemplate content={resume} />}
-            {selectedTemplate === 'minimal' && <MinimalTemplate content={resume} />}
+            {selectedTemplate === 'modern' && <ModernTemplate content={resume} contactInfo={formData?.contact} />}
+            {selectedTemplate === 'classic' && <ClassicTemplate content={resume} contactInfo={formData?.contact} />}
+            {selectedTemplate === 'minimal' && <MinimalTemplate content={resume} contactInfo={formData?.contact} />}
             {selectedTemplate === 'markdown' && (
               <div className="bg-white dark:bg-zinc-900 p-6">
                 <MarkdownRenderer content={resume} />

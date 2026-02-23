@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Eye, Download, Layout } from 'lucide-react'
+import { Eye, Download, Layout, Loader2 } from 'lucide-react'
 import { MarkdownRenderer } from '@/components/markdown-renderer'
 import { ModernTemplate } from '@/components/resume-templates/modern-template'
 import { ClassicTemplate } from '@/components/resume-templates/classic-template'
@@ -13,64 +13,49 @@ type TemplateType = 'simple' | 'modern' | 'classic' | 'minimal'
 
 interface ResumeModalProps {
   resumeText: string
+  contactInfo?: {
+    fullName?: string
+    email?: string
+    phone?: string
+  }
   forceTemplate?: TemplateType
 }
 
-export function ResumeModal({ resumeText, forceTemplate }: ResumeModalProps) {
+export function ResumeModal({ resumeText, contactInfo, forceTemplate }: ResumeModalProps) {
   const [open, setOpen] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>(forceTemplate || 'modern')
+  const [downloading, setDownloading] = useState(false)
 
-  const handleDownloadPDF = () => {
-    const element = document.getElementById('resume-preview-content')
-    if (!element) return
+  const handleDownloadPDF = async () => {
+    setDownloading(true)
+    try {
+      const response = await fetch('/api/profile/download-template', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          template: selectedTemplate,
+          contactInfo: contactInfo
+        })
+      })
 
-    // Get all stylesheets to preserve template styling
-    const styles = Array.from(document.styleSheets).map(styleSheet => {
-      try {
-        return Array.from(styleSheet.cssRules).map(rule => rule.cssText).join('\n')
-      } catch (e) {
-        return ''
+      if (!response.ok) {
+        throw new Error('Download failed')
       }
-    }).join('\n')
 
-    // Open a new window with the complete template HTML and styles
-    const printWindow = window.open('', '_blank')
-    if (!printWindow) return
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <style>
-            ${styles}
-            @page {
-              margin: 0.5in;
-              size: letter;
-            }
-            @media print {
-              @page { 
-                margin: 0.5in;
-                size: letter;
-              }
-              body { 
-                padding: 0; 
-                margin: 0;
-              }
-              .no-print { display: none !important; }
-            }
-          </style>
-        </head>
-        <body style="background: white; color: black;">
-          ${element.outerHTML}
-        </body>
-      </html>
-    `)
-    printWindow.document.close()
-
-    // Wait for content to load then trigger print
-    printWindow.onload = () => {
-      printWindow.print()
-      printWindow.close()
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `resume-${selectedTemplate}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Download error:', error)
+      alert('Failed to download resume. Please try again.')
+    } finally {
+      setDownloading(false)
     }
   }
 
@@ -129,9 +114,13 @@ export function ResumeModal({ resumeText, forceTemplate }: ResumeModalProps) {
               onClick={handleDownloadPDF}
               size="sm"
               className="ml-auto"
+              disabled={downloading}
             >
-              <Download className="h-4 w-4 mr-2" />
-              Download PDF
+              {downloading ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...</>
+              ) : (
+                <><Download className="h-4 w-4 mr-2" /> Download PDF</>
+              )}
             </Button>
           </div>
         )}
@@ -141,12 +130,12 @@ export function ResumeModal({ resumeText, forceTemplate }: ResumeModalProps) {
           <div id="resume-preview-content">
             {selectedTemplate === 'simple' && (
               <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 max-w-4xl mx-auto">
-                <MarkdownRenderer content={resumeText} />
+                <MarkdownRenderer content={resumeText} contactInfo={contactInfo} />
               </div>
             )}
-            {selectedTemplate === 'modern' && <ModernTemplate content={resumeText} />}
-            {selectedTemplate === 'classic' && <ClassicTemplate content={resumeText} />}
-            {selectedTemplate === 'minimal' && <MinimalTemplate content={resumeText} />}
+            {selectedTemplate === 'modern' && <ModernTemplate content={resumeText} contactInfo={contactInfo} />}
+            {selectedTemplate === 'classic' && <ClassicTemplate content={resumeText} contactInfo={contactInfo} />}
+            {selectedTemplate === 'minimal' && <MinimalTemplate content={resumeText} contactInfo={contactInfo} />}
           </div>
         </div>
       </DialogContent>

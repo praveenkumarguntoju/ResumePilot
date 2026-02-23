@@ -4,9 +4,14 @@ import React from 'react'
 
 interface MarkdownRendererProps {
   content: string
+  contactInfo?: {
+    fullName?: string
+    email?: string
+    phone?: string
+  }
 }
 
-export function MarkdownRenderer({ content }: MarkdownRendererProps) {
+export function MarkdownRenderer({ content, contactInfo }: MarkdownRendererProps) {
   // Convert markdown to HTML-like structure
   const renderMarkdown = (text: string) => {
     const lines = text.split('\n')
@@ -101,6 +106,21 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
   return (
     <div className="prose prose-sm max-w-none dark:prose-invert">
+      {contactInfo && (contactInfo.fullName || contactInfo.email || contactInfo.phone) && (
+        <div className="mb-6 pb-4 border-b border-zinc-300 dark:border-zinc-700">
+          {contactInfo.fullName && (
+            <h1 className="text-2xl font-bold mb-2 text-zinc-900 dark:text-zinc-100">
+              {contactInfo.fullName}
+            </h1>
+          )}
+          {(contactInfo.email || contactInfo.phone) && (
+            <div className="text-sm text-zinc-600 dark:text-zinc-400 space-y-1">
+              {contactInfo.email && <div>{contactInfo.email}</div>}
+              {contactInfo.phone && <div>{contactInfo.phone}</div>}
+            </div>
+          )}
+        </div>
+      )}
       {renderMarkdown(content)}
     </div>
   )

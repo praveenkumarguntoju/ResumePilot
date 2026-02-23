@@ -45,6 +45,9 @@ interface ResumeItem {
 
 interface ProfileData {
   id: string
+  fullName?: string
+  email?: string
+  phone?: string
   rawResumeText: string | null
   updatedAt: string
 }
@@ -171,34 +174,38 @@ export default function StudentDashboardPage() {
           </Link>
 
           {/* Advisor Comments */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Advisor Feedback</CardTitle>
-              <MessageSquare className="h-5 w-5 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">{comments.length}</p>
-              <p className="text-xs text-zinc-500 mt-1">
-                {comments.length === 0 ? 'No feedback yet' : 'comments from advisors'}
-              </p>
-            </CardContent>
-          </Card>
+          <Link href={`/u/${slug}/feedback`}>
+            <Card className="cursor-pointer hover:shadow-xl transition-all hover:border-blue-400 dark:hover:border-blue-600">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Advisor Feedback</CardTitle>
+                <MessageSquare className="h-5 w-5 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{comments.length}</p>
+                <p className="text-xs text-zinc-500 mt-1">
+                  {comments.length === 0 ? 'No feedback yet' : 'comments from advisors'}
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
 
           {/* Opportunities */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Opportunities</CardTitle>
-              <Bell className="h-5 w-5 text-yellow-600" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold">{opportunities.length}</p>
-              {unreadCount > 0 && (
-                <p className="text-xs text-yellow-600 font-medium mt-1">
-                  {unreadCount} new
-                </p>
-              )}
-            </CardContent>
-          </Card>
+          <Link href={`/u/${slug}/opportunities`}>
+            <Card className="cursor-pointer hover:shadow-xl transition-all hover:border-yellow-400 dark:hover:border-yellow-600">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Opportunities</CardTitle>
+                <Bell className="h-5 w-5 text-yellow-600" />
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{opportunities.length}</p>
+                {unreadCount > 0 && (
+                  <p className="text-xs text-yellow-600 font-medium mt-1">
+                    {unreadCount} new
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* Quick Actions — ordered by student workflow */}
@@ -319,7 +326,14 @@ export default function StudentDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-3">
-                <ResumeModal resumeText={profile.rawResumeText} />
+                <ResumeModal 
+                  resumeText={profile.rawResumeText} 
+                  contactInfo={{
+                    fullName: profile.fullName || undefined,
+                    email: profile.email || undefined,
+                    phone: profile.phone || undefined
+                  }} 
+                />
                 <Link href="/dashboard/optimize">
                   <button className="text-sm px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors">
                     Optimize for a job
@@ -408,50 +422,6 @@ export default function StudentDashboardPage() {
                     <p className="text-xs text-zinc-500 mt-2">
                       — {comment.advisor.name || comment.advisor.email} · {new Date(comment.createdAt).toLocaleDateString('en-GB')}
                     </p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Opportunities */}
-        {opportunities.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-yellow-600" />
-                Opportunities
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {opportunities.map((opp) => (
-                  <div
-                    key={opp.id}
-                    className={`p-3 rounded-lg border ${
-                      opp.isRead
-                        ? 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700'
-                        : 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800'
-                    }`}
-                  >
-                    <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      {opp.opportunity.title}
-                      {!opp.isRead && <span className="ml-2 text-xs bg-yellow-500 text-white px-2 py-0.5 rounded-full">New</span>}
-                    </p>
-                    {opp.opportunity.description && (
-                      <p className="text-xs text-zinc-500 mt-1">{opp.opportunity.description}</p>
-                    )}
-                    {opp.opportunity.link && (
-                      <a
-                        href={opp.opportunity.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-blue-600 hover:underline mt-1 inline-block"
-                      >
-                        View opportunity →
-                      </a>
-                    )}
                   </div>
                 ))}
               </div>

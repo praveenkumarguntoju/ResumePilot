@@ -5,6 +5,11 @@ import { z } from 'zod'
 
 const saveResumeSchema = z.object({
   resumeText: z.string().min(1),
+  contact: z.object({
+    fullName: z.string().min(1),
+    email: z.string().email(),
+    phone: z.string().optional(),
+  }).optional(),
 })
 
 export async function POST(request: Request) {
@@ -15,18 +20,25 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { resumeText } = saveResumeSchema.parse(body)
+    const { resumeText, contact } = saveResumeSchema.parse(body)
 
     // Check if profile exists
     const existingProfile = await prisma.profile.findUnique({
       where: { userId: session.user.id },
     })
 
+    const updateData: any = { rawResumeText: resumeText }
+    if (contact) {
+      updateData.fullName = contact.fullName
+      updateData.email = contact.email
+      updateData.phone = contact.phone || null
+    }
+
     if (existingProfile) {
       // Update existing profile
       await prisma.profile.update({
         where: { userId: session.user.id },
-        data: { rawResumeText: resumeText },
+        data: updateData,
       })
     } else {
       // Create new profile
@@ -34,6 +46,7 @@ export async function POST(request: Request) {
         data: {
           userId: session.user.id,
           rawResumeText: resumeText,
+          ...updateData,
         },
       })
     }

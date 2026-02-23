@@ -5,9 +5,14 @@ import { extractNameFromResume } from '@/lib/resume-utils'
 
 interface ModernTemplateProps {
   content: string
+  contactInfo?: {
+    fullName?: string
+    email?: string
+    phone?: string
+  }
 }
 
-export function ModernTemplate({ content }: ModernTemplateProps) {
+export function ModernTemplate({ content, contactInfo }: ModernTemplateProps) {
   const parseResume = (text: string) => {
     const sections: { [key: string]: string[] } = {}
     let currentSection = 'header'
@@ -59,13 +64,19 @@ export function ModernTemplate({ content }: ModernTemplateProps) {
   }
 
   const sections = parseResume(content)
-  const name = extractNameFromResume(content)
+  const name = contactInfo?.fullName || extractNameFromResume(content)
 
   return (
     <div className="bg-white text-zinc-900 p-8 rounded-lg max-w-4xl mx-auto">
       {/* Header with accent color */}
       <div className="border-l-4 border-blue-600 pl-4 mb-6">
         <h1 className="text-3xl font-bold text-zinc-900 mb-2">{name}</h1>
+        {(contactInfo?.email || contactInfo?.phone) && (
+          <div className="text-sm text-zinc-600 space-y-1">
+            {contactInfo.email && <div>{contactInfo.email}</div>}
+            {contactInfo.phone && <div>{contactInfo.phone}</div>}
+          </div>
+        )}
         {sections['professional summary'] && (
           <p className="text-sm text-zinc-600 leading-relaxed">
             {sections['professional summary'].join(' ').replace(/\*\*/g, '')}

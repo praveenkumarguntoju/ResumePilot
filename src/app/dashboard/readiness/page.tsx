@@ -5,7 +5,7 @@ import { DashboardHeader } from '@/components/dashboard-header'
 import { BackButton } from '@/components/back-button'
 import { InterviewReadinessScore } from '@/components/interview-readiness-score'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Target, Clock, ChevronDown, ChevronUp, Lightbulb, BookOpen, Award, Footprints } from 'lucide-react'
+import { Target, Clock, ChevronDown, ChevronUp, Lightbulb, BookOpen, Award, Footprints, Trash2 } from 'lucide-react'
 
 interface ReadinessHistory {
   id: string
@@ -22,6 +22,7 @@ interface ReadinessHistory {
 export default function ReadinessPage() {
   const [history, setHistory] = useState<ReadinessHistory[]>([])
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadHistory() {
@@ -37,6 +38,35 @@ export default function ReadinessPage() {
     }
     loadHistory()
   }, [])
+
+  const toggleExpanded = (id: string) => {
+    setExpandedId(expandedId === id ? null : id)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this assessment?')) return
+    
+    setDeletingId(id)
+    try {
+      const response = await fetch(`/api/interview-readiness?id=${id}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        setHistory(prev => prev.filter(item => item.id !== id))
+        if (expandedId === id) {
+          setExpandedId(null)
+        }
+      } else {
+        alert('Failed to delete assessment')
+      }
+    } catch (error) {
+      console.error('Delete error:', error)
+      alert('Failed to delete assessment')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   const getScoreColor = (score: number) => {
     if (score >= 71) return 'text-green-600 dark:text-green-400'
@@ -94,7 +124,7 @@ export default function ReadinessPage() {
                   className={`hover:shadow-md transition-all cursor-pointer ${
                     expandedId === item.id ? 'ring-2 ring-cyan-400 dark:ring-cyan-600' : ''
                   }`}
-                  onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                  onClick={() => toggleExpanded(item.id)}
                 >
                   <CardContent className="py-4">
                     <div className="flex items-center justify-between">
@@ -134,11 +164,25 @@ export default function ReadinessPage() {
                             <p className="text-xs text-zinc-400">Market</p>
                           </div>
                         </div>
-                        {expandedId === item.id ? (
-                          <ChevronUp className="h-5 w-5 text-zinc-400" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-zinc-400" />
-                        )}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            disabled={deletingId === item.id}
+                            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 rounded transition-colors disabled:opacity-50"
+                            title="Delete assessment"
+                          >
+                            {deletingId === item.id ? (
+                              <div className="h-4 w-4 animate-spin border-2 border-red-500 border-t-transparent rounded-full" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </button>
+                          {expandedId === item.id ? (
+                            <ChevronUp className="h-5 w-5 text-zinc-400" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-zinc-400" />
+                          )}
+                        </div>
                       </div>
                     </div>
 

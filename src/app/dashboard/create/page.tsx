@@ -17,8 +17,14 @@ import { SkillsStep } from '@/components/resume-wizard/skills-step'
 import { TargetRoleStep } from '@/components/resume-wizard/target-role-step'
 import { GeneratingStep } from '@/components/resume-wizard/generating-step'
 import { ReviewStep } from '@/components/resume-wizard/review-step'
+import { ContactStep } from '@/components/resume-wizard/contact-step'
 
 export interface ResumeFormData {
+  contact: {
+    fullName: string
+    email: string
+    phone: string
+  }
   userType: 'student' | 'career-change' | ''
   education: {
     degree: string
@@ -56,19 +62,25 @@ export interface ResumeFormData {
 
 const STEPS = [
   { id: 0, name: 'Intro', component: IntroStep },
-  { id: 1, name: 'Education', component: EducationStep },
-  { id: 2, name: 'Experience', component: ExperienceStep },
-  { id: 3, name: 'Projects', component: ProjectsStep },
-  { id: 4, name: 'Skills', component: SkillsStep },
-  { id: 5, name: 'Target Role', component: TargetRoleStep },
-  { id: 6, name: 'Generate', component: GeneratingStep },
-  { id: 7, name: 'Review', component: ReviewStep },
+  { id: 1, name: 'Contact', component: ContactStep },
+  { id: 2, name: 'Education', component: EducationStep },
+  { id: 3, name: 'Experience', component: ExperienceStep },
+  { id: 4, name: 'Projects', component: ProjectsStep },
+  { id: 5, name: 'Skills', component: SkillsStep },
+  { id: 6, name: 'Target Role', component: TargetRoleStep },
+  { id: 7, name: 'Generate', component: GeneratingStep },
+  { id: 8, name: 'Review', component: ReviewStep },
 ]
 
 export default function CreateResumePage() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState<ResumeFormData>({
+    contact: {
+      fullName: '',
+      email: '',
+      phone: '',
+    },
     userType: '',
     education: {
       degree: '',
@@ -155,6 +167,15 @@ export default function CreateResumePage() {
   }
 
   const handleNext = () => {
+    // Validate contact step
+    if (currentStep === 1) {
+      const isContactValid = formData.contact.fullName.trim() !== '' && formData.contact.email.trim() !== ''
+      if (!isContactValid) {
+        alert('Please fill in your full name and email address to continue.')
+        return
+      }
+    }
+    
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1)
     }
@@ -254,7 +275,7 @@ export default function CreateResumePage() {
         </Card>
 
         {/* Navigation Buttons */}
-        {currentStep < 6 && (
+        {currentStep < 7 && (
           <div className="flex justify-between mt-6">
             <Button
               variant="outline"

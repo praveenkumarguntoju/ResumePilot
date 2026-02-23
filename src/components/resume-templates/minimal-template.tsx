@@ -5,9 +5,14 @@ import { extractNameFromResume } from '@/lib/resume-utils'
 
 interface MinimalTemplateProps {
   content: string
+  contactInfo?: {
+    fullName?: string
+    email?: string
+    phone?: string
+  }
 }
 
-export function MinimalTemplate({ content }: MinimalTemplateProps) {
+export function MinimalTemplate({ content, contactInfo }: MinimalTemplateProps) {
   const parseResume = (text: string) => {
     const sections: { [key: string]: string[] } = {}
     let currentSection = 'header'
@@ -58,13 +63,19 @@ export function MinimalTemplate({ content }: MinimalTemplateProps) {
   }
 
   const sections = parseResume(content)
-  const name = extractNameFromResume(content)
+  const name = contactInfo?.fullName || extractNameFromResume(content)
 
   return (
     <div className="bg-white text-zinc-900 p-8 rounded-lg max-w-4xl mx-auto">
       {/* Minimal Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-light text-zinc-900 mb-2 tracking-tight">{name}</h1>
+        {(contactInfo?.email || contactInfo?.phone) && (
+          <div className="text-xs text-zinc-500 space-y-1">
+            {contactInfo.email && <div>{contactInfo.email}</div>}
+            {contactInfo.phone && <div>{contactInfo.phone}</div>}
+          </div>
+        )}
         {sections['professional summary'] && (
           <p className="text-xs text-zinc-500 leading-relaxed font-light">
             {sections['professional summary'].join(' ').replace(/\*\*/g, '')}
