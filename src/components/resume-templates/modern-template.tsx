@@ -62,7 +62,7 @@ export function ModernTemplate({ content }: ModernTemplateProps) {
   const name = extractNameFromResume(content)
 
   return (
-    <div className="bg-white text-zinc-900 p-8 shadow-lg rounded-lg max-w-4xl mx-auto">
+    <div className="bg-white text-zinc-900 p-8 rounded-lg max-w-4xl mx-auto">
       {/* Header with accent color */}
       <div className="border-l-4 border-blue-600 pl-4 mb-6">
         <h1 className="text-3xl font-bold text-zinc-900 mb-2">{name}</h1>

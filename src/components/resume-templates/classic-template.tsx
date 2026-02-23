@@ -61,7 +61,7 @@ export function ClassicTemplate({ content }: ClassicTemplateProps) {
   const name = extractNameFromResume(content)
 
   return (
-    <div className="bg-white text-zinc-900 p-8 shadow-lg rounded-lg max-w-4xl mx-auto">
+    <div className="bg-white text-zinc-900 p-8 rounded-lg max-w-4xl mx-auto">
       {/* Centered Header */}
       <div className="text-center mb-8 pb-4 border-b-2 border-zinc-800">
         <h1 className="text-4xl font-serif font-bold text-zinc-900 mb-3">{name}</h1>

@@ -5,12 +5,19 @@ import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { DashboardHeader } from '@/components/dashboard-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2, Target, MessageSquare, Briefcase, Bell, FileText, TrendingUp, ShieldCheck, Sparkles } from 'lucide-react'
+import { Loader2, Target, MessageSquare, Briefcase, Bell, FileText, TrendingUp, ShieldCheck, Sparkles, Globe } from 'lucide-react'
 import Link from 'next/link'
+import { ResumeModal } from '@/components/resume-modal'
 
 interface ReadinessData {
+  id: string
   overallScore: number
   targetRole: string
+  resumeQualityScore: number
+  skillMatchScore: number
+  experienceScore: number
+  marketDemandScore: number
+  suggestions: string | null
   createdAt: string
 }
 
@@ -27,6 +34,21 @@ interface OpportunityNotif {
   opportunity: { title: string; description: string | null; link: string | null }
 }
 
+interface ResumeItem {
+  id: string
+  jobTitle: string
+  company: string
+  atsScore: number | null
+  keywordMatch: number | null
+  createdAt: string
+}
+
+interface ProfileData {
+  id: string
+  rawResumeText: string | null
+  updatedAt: string
+}
+
 export default function StudentDashboardPage() {
   const params = useParams()
   const slug = params.slug as string
@@ -35,15 +57,19 @@ export default function StudentDashboardPage() {
   const [readiness, setReadiness] = useState<ReadinessData | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [opportunities, setOpportunities] = useState<OpportunityNotif[]>([])
+  const [resumes, setResumes] = useState<ResumeItem[]>([])
+  const [profile, setProfile] = useState<ProfileData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [readinessRes, commentsRes, oppsRes] = await Promise.all([
+        const [readinessRes, commentsRes, oppsRes, resumesRes, profileRes] = await Promise.all([
           fetch('/api/interview-readiness'),
           fetch(`/api/university/${slug}/comments`),
           fetch(`/api/university/${slug}/opportunities/student`),
+          fetch('/api/resume/list'),
+          fetch('/api/profile/me'),
         ])
 
         if (readinessRes.ok) {
@@ -57,6 +83,14 @@ export default function StudentDashboardPage() {
         if (oppsRes.ok) {
           const data = await oppsRes.json()
           setOpportunities(data)
+        }
+        if (resumesRes.ok) {
+          const data = await resumesRes.json()
+          setResumes(data)
+        }
+        if (profileRes.ok) {
+          const data = await profileRes.json()
+          if (data?.rawResumeText) setProfile(data)
         }
       } catch (err) {
         console.error('Failed to load student data:', err)
@@ -82,6 +116,18 @@ export default function StudentDashboardPage() {
   }
 
   const unreadCount = opportunities.filter((o) => !o.isRead).length
+
+  const getScoreBadgeColor = (score: number) => {
+    if (score >= 71) return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800'
+    if (score >= 41) return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 border-orange-200 dark:border-orange-800'
+    return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800'
+  }
+
+  const getScoreLabel = (score: number) => {
+    if (score >= 71) return 'Excellent'
+    if (score >= 41) return 'Needs Work'
+    return 'Low'
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -253,6 +299,97 @@ export default function StudentDashboardPage() {
             </Card>
           </Link>
         </div>
+
+        {/* My Resume (from Create wizard) */}
+        {profile && profile.rawResumeText && (
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-blue-600" />
+                  My Resume
+                </CardTitle>
+                <Link href="/dashboard/create" className="text-sm text-blue-600 hover:underline">
+                  Edit resume →
+                </Link>
+              </div>
+              <CardDescription>
+                Last updated {new Date(profile.updatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                <ResumeModal resumeText={profile.rawResumeText} />
+                <Link href="/dashboard/optimize">
+                  <button className="text-sm px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors">
+                    Optimize for a job
+                  </button>
+                </Link>
+                <Link href="/dashboard/review">
+                  <button className="text-sm px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors">
+                    Get AI review
+                  </button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Optimized Resumes */}
+        {resumes.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-blue-600" />
+                  My Resumes
+                </CardTitle>
+                <Link href="/dashboard/resumes" className="text-sm text-blue-600 hover:underline">
+                  View all →
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {resumes.slice(0, 6).map((resume, index) => (
+                  <Link key={resume.id} href={`/dashboard/resumes/${resume.id}`}>
+                    <div className={`p-4 rounded-lg border cursor-pointer hover:shadow-md transition-all ${
+                      index === 0
+                        ? 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/20'
+                        : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500'
+                    }`}>
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{resume.jobTitle}</p>
+                          <p className="text-xs text-zinc-500 truncate">{resume.company}</p>
+                        </div>
+                        {index === 0 && (
+                          <span className="text-xs font-semibold px-2 py-0.5 bg-blue-500 text-white rounded-full shrink-0 ml-2">Latest</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4 text-xs">
+                        <div>
+                          <span className="text-zinc-500">ATS</span>
+                          <p className={`font-semibold ${
+                            (resume.atsScore || 0) >= 71 ? 'text-green-600' :
+                            (resume.atsScore || 0) >= 41 ? 'text-orange-600' : 'text-red-600'
+                          }`}>{resume.atsScore || 0}%</p>
+                        </div>
+                        <div>
+                          <span className="text-zinc-500">Keywords</span>
+                          <p className="font-semibold">{resume.keywordMatch || 0}%</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-zinc-400 mt-2">
+                        {new Date(resume.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Recent Comments */}
         {comments.length > 0 && (
