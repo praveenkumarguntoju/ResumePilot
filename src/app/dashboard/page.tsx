@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { ResumeUpload } from '@/components/resume-upload'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { FileText, Briefcase, FileEdit, Globe, GraduationCap, Sparkles } from 'lucide-react'
+import { FileText, Briefcase, FileEdit, Globe, GraduationCap, Sparkles, Target, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import { DashboardHeader } from '@/components/dashboard-header'
 import { ResumeCard } from '@/components/resume-card'
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
           <ResumeCard hasResume={hasResume} resumeText={profile?.rawResumeText || undefined} />
 
           <Link href="/dashboard/create">
@@ -130,6 +130,50 @@ export default async function DashboardPage() {
               <div className="absolute top-2 left-2 bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
                 <Sparkles className="h-3 w-3" />
                 AI POWERED
+              </div>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/readiness">
+            <Card className="relative overflow-hidden cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 border-2 border-cyan-500 dark:border-cyan-400 shadow-cyan-500/50 dark:shadow-cyan-400/50 shadow-lg animate-pulse-slow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Interview Readiness</CardTitle>
+                <div className="h-12 w-12 rounded-full bg-cyan-100 dark:bg-cyan-950 flex items-center justify-center">
+                  <Target className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-semibold text-cyan-600 dark:text-cyan-400">Check your score</div>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
+                  AI-powered readiness assessment
+                </p>
+              </CardContent>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-50 dark:bg-cyan-950/20 rounded-full -mr-16 -mt-16 opacity-50" />
+              <div className="absolute top-2 left-2 bg-gradient-to-r from-cyan-600 via-cyan-500 to-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                NEW
+              </div>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/review">
+            <Card className="relative overflow-hidden cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 border-2 border-rose-500 dark:border-rose-400 shadow-rose-500/50 dark:shadow-rose-400/50 shadow-lg animate-pulse-slow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Resume Review</CardTitle>
+                <div className="h-12 w-12 rounded-full bg-rose-100 dark:bg-rose-950 flex items-center justify-center">
+                  <MessageSquare className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-semibold text-rose-600 dark:text-rose-400">Get AI feedback</div>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
+                  Detailed resume critique
+                </p>
+              </CardContent>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-rose-50 dark:bg-rose-950/20 rounded-full -mr-16 -mt-16 opacity-50" />
+              <div className="absolute top-2 left-2 bg-gradient-to-r from-rose-600 via-rose-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                NEW
               </div>
             </Card>
           </Link>

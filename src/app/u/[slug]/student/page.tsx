@@ -1,0 +1,327 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { DashboardHeader } from '@/components/dashboard-header'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Loader2, Target, MessageSquare, Briefcase, Bell, FileText, TrendingUp, ShieldCheck, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+
+interface ReadinessData {
+  overallScore: number
+  targetRole: string
+  createdAt: string
+}
+
+interface Comment {
+  id: string
+  commentText: string
+  createdAt: string
+  advisor: { name: string | null; email: string }
+}
+
+interface OpportunityNotif {
+  id: string
+  isRead: boolean
+  opportunity: { title: string; description: string | null; link: string | null }
+}
+
+export default function StudentDashboardPage() {
+  const params = useParams()
+  const slug = params.slug as string
+  const { data: session } = useSession()
+
+  const [readiness, setReadiness] = useState<ReadinessData | null>(null)
+  const [comments, setComments] = useState<Comment[]>([])
+  const [opportunities, setOpportunities] = useState<OpportunityNotif[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [readinessRes, commentsRes, oppsRes] = await Promise.all([
+          fetch('/api/interview-readiness'),
+          fetch(`/api/university/${slug}/comments`),
+          fetch(`/api/university/${slug}/opportunities/student`),
+        ])
+
+        if (readinessRes.ok) {
+          const data = await readinessRes.json()
+          if (data.length > 0) setReadiness(data[0])
+        }
+        if (commentsRes.ok) {
+          const data = await commentsRes.json()
+          setComments(data)
+        }
+        if (oppsRes.ok) {
+          const data = await oppsRes.json()
+          setOpportunities(data)
+        }
+      } catch (err) {
+        console.error('Failed to load student data:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [slug])
+
+  const getScoreColor = (score: number) => {
+    if (score >= 71) return 'text-green-600 dark:text-green-400'
+    if (score >= 41) return 'text-orange-600 dark:text-orange-400'
+    return 'text-red-600 dark:text-red-400'
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
+      </div>
+    )
+  }
+
+  const unreadCount = opportunities.filter((o) => !o.isRead).length
+
+  return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <DashboardHeader userEmail={session?.user?.email || null} />
+
+      <main className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-1">Student Dashboard</h1>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            Welcome back, {session?.user?.name || session?.user?.email}
+          </p>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Readiness Score */}
+          <Link href="/dashboard/readiness">
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Interview Readiness</CardTitle>
+                <Target className="h-5 w-5 text-cyan-600" />
+              </CardHeader>
+              <CardContent>
+                {readiness ? (
+                  <>
+                    <p className={`text-3xl font-bold ${getScoreColor(readiness.overallScore)}`}>
+                      {readiness.overallScore}%
+                    </p>
+                    <p className="text-xs text-zinc-500 mt-1">
+                      Target: {readiness.targetRole}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-lg font-semibold text-zinc-400">Not assessed</p>
+                    <p className="text-xs text-zinc-500 mt-1">Click to check your score</p>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Advisor Comments */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Advisor Feedback</CardTitle>
+              <MessageSquare className="h-5 w-5 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold">{comments.length}</p>
+              <p className="text-xs text-zinc-500 mt-1">
+                {comments.length === 0 ? 'No feedback yet' : 'comments from advisors'}
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Opportunities */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Opportunities</CardTitle>
+              <Bell className="h-5 w-5 text-yellow-600" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold">{opportunities.length}</p>
+              {unreadCount > 0 && (
+                <p className="text-xs text-yellow-600 font-medium mt-1">
+                  {unreadCount} new
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions — ordered by student workflow */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
+          <Link href="/dashboard/create">
+            <Card className="cursor-pointer hover:shadow-xl transition-all border-2 border-blue-400 dark:border-blue-600 relative overflow-hidden h-full">
+              <CardContent className="pt-6 pb-5 px-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="inline-block text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 px-3 py-1 rounded-full mb-3">
+                      ✨ AI POWERED
+                    </span>
+                    <p className="font-semibold text-base">Create Resume</p>
+                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mt-2">Start from scratch</p>
+                    <p className="text-xs text-zinc-500 mt-1">Perfect for students &amp; graduates</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center shrink-0 ml-3">
+                    <Briefcase className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/dashboard/optimize">
+            <Card className="cursor-pointer hover:shadow-xl transition-all border-2 border-amber-400 dark:border-amber-600 relative overflow-hidden h-full">
+              <CardContent className="pt-6 pb-5 px-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="inline-block text-xs font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 rounded-full mb-3">
+                      ✨ AI POWERED
+                    </span>
+                    <p className="font-semibold text-base">Optimize Resume</p>
+                    <p className="text-sm text-amber-600 dark:text-amber-400 font-medium mt-2">Tailor for a job</p>
+                    <p className="text-xs text-zinc-500 mt-1">Match to specific job postings</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-amber-100 dark:bg-amber-950 flex items-center justify-center shrink-0 ml-3">
+                    <Sparkles className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/dashboard/review">
+            <Card className="cursor-pointer hover:shadow-xl transition-all border-2 border-rose-400 dark:border-rose-600 relative overflow-hidden h-full">
+              <CardContent className="pt-6 pb-5 px-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="inline-block text-xs font-bold text-white bg-gradient-to-r from-rose-500 to-pink-500 px-3 py-1 rounded-full mb-3">
+                      ✨ NEW
+                    </span>
+                    <p className="font-semibold text-base">Resume Review</p>
+                    <p className="text-sm text-rose-600 dark:text-rose-400 font-medium mt-2">Get AI feedback</p>
+                    <p className="text-xs text-zinc-500 mt-1">Detailed resume critique</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-rose-100 dark:bg-rose-950 flex items-center justify-center shrink-0 ml-3">
+                    <FileText className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/dashboard/readiness">
+            <Card className="cursor-pointer hover:shadow-xl transition-all border-2 border-cyan-400 dark:border-cyan-600 relative overflow-hidden h-full">
+              <CardContent className="pt-6 pb-5 px-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="inline-block text-xs font-bold text-white bg-gradient-to-r from-cyan-500 to-teal-500 px-3 py-1 rounded-full mb-3">
+                      ✨ AI POWERED
+                    </span>
+                    <p className="font-semibold text-base">Readiness Score</p>
+                    <p className="text-sm text-cyan-600 dark:text-cyan-400 font-medium mt-2">Check your score</p>
+                    <p className="text-xs text-zinc-500 mt-1">AI-powered assessment</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-cyan-100 dark:bg-cyan-950 flex items-center justify-center shrink-0 ml-3">
+                    <TrendingUp className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href={`/u/${slug}/consent`}>
+            <Card className="cursor-pointer hover:shadow-xl transition-all border-2 border-green-400 dark:border-green-600 relative overflow-hidden h-full">
+              <CardContent className="pt-6 pb-5 px-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="inline-block text-xs font-bold text-white bg-gradient-to-r from-green-500 to-emerald-500 px-3 py-1 rounded-full mb-3">
+                      🔒 GDPR
+                    </span>
+                    <p className="font-semibold text-base">Data Consent</p>
+                    <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-2">Manage preferences</p>
+                    <p className="text-xs text-zinc-500 mt-1">Privacy &amp; data sharing</p>
+                  </div>
+                  <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center shrink-0 ml-3">
+                    <ShieldCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+
+        {/* Recent Comments */}
+        {comments.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-blue-600" />
+                Recent Advisor Feedback
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {comments.slice(0, 5).map((comment) => (
+                  <div key={comment.id} className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
+                    <p className="text-sm text-zinc-700 dark:text-zinc-300">{comment.commentText}</p>
+                    <p className="text-xs text-zinc-500 mt-2">
+                      — {comment.advisor.name || comment.advisor.email} · {new Date(comment.createdAt).toLocaleDateString('en-GB')}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Opportunities */}
+        {opportunities.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="h-5 w-5 text-yellow-600" />
+                Opportunities
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {opportunities.map((opp) => (
+                  <div
+                    key={opp.id}
+                    className={`p-3 rounded-lg border ${
+                      opp.isRead
+                        ? 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700'
+                        : 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800'
+                    }`}
+                  >
+                    <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      {opp.opportunity.title}
+                      {!opp.isRead && <span className="ml-2 text-xs bg-yellow-500 text-white px-2 py-0.5 rounded-full">New</span>}
+                    </p>
+                    {opp.opportunity.description && (
+                      <p className="text-xs text-zinc-500 mt-1">{opp.opportunity.description}</p>
+                    )}
+                    {opp.opportunity.link && (
+                      <a
+                        href={opp.opportunity.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:underline mt-1 inline-block"
+                      >
+                        View opportunity →
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </main>
+    </div>
+  )
+}

@@ -31,7 +31,19 @@ export default function LoginPage() {
       if (result?.error) {
         setError('Invalid email or password')
       } else {
-        router.push('/dashboard')
+        // Fetch session to determine correct redirect
+        const res = await fetch('/api/auth/session')
+        const session = await res.json()
+        const role = session?.user?.role
+        const uniSlug = session?.user?.universitySlug
+
+        if (role === 'superadmin') {
+          router.push('/admin/universities')
+        } else if (uniSlug && (role === 'student' || role === 'advisor' || role === 'admin')) {
+          router.push(`/u/${uniSlug}/${role}`)
+        } else {
+          router.push('/dashboard')
+        }
         router.refresh()
       }
     } catch (err) {
