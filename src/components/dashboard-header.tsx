@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import Image from 'next/image'
+import { signOutAction } from '@/app/actions/sign-out'
 // New commit
 
 interface DashboardHeaderProps {
@@ -27,11 +28,7 @@ export function DashboardHeader({ userEmail }: DashboardHeaderProps) {
               {userEmail}
             </span>
           )}
-          <form action={async () => {
-            'use server'
-            const { signOut } = await import('@/auth')
-            await signOut({ redirectTo: 'https://www.resumepilot.co.uk/' })
-          }}>
+          <form action={signOutAction}>
             <Button type="submit" variant="outline" size="sm" className="border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
               Sign out
             </Button>

@@ -8,6 +8,8 @@ import { MapPin, Briefcase, Award, Eye, Download, Calendar, Building2 } from 'lu
 import { ResumeModal } from '@/components/resume-modal'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { DashboardHeader } from '@/components/dashboard-header'
+import { BackButton } from '@/components/back-button'
 import Image from 'next/image'
 
 interface Profile {
@@ -86,22 +88,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-lg bg-white/80 dark:bg-zinc-900/80 border-b border-zinc-200 dark:border-zinc-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Image 
-              src="/images/resume-pilot.png" 
-              alt="ResumePilot Logo"
-              className="rounded-lg"
-              width={180} 
-              height={180}
-            />
-          </div>
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <DashboardHeader userEmail={null} />
       
       {/* Compact Hero Section */}
       <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-950 border-b border-zinc-200 dark:border-zinc-800">

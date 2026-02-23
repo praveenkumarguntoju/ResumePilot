@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Copy, ExternalLink, Trash2, Check } from 'lucide-react'
@@ -12,11 +13,13 @@ interface PublicProfile {
   headline: string
   createdAt: Date
   isActive: boolean
+  resumeId: string | null
 }
 
 export function PublicProfilesTable({ profiles }: { profiles: PublicProfile[] }) {
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const router = useRouter()
 
   const copyLink = (slug: string) => {
     const url = `${window.location.origin}/p/${slug}`
@@ -51,6 +54,12 @@ export function PublicProfilesTable({ profiles }: { profiles: PublicProfile[] })
       alert('Error deleting profile')
     } finally {
       setDeletingId(null)
+    }
+  }
+
+  const navigateToResume = (resumeId: string | null) => {
+    if (resumeId) {
+      router.push(`/dashboard/resumes/${resumeId}`)
     }
   }
 
@@ -90,8 +99,25 @@ export function PublicProfilesTable({ profiles }: { profiles: PublicProfile[] })
                   key={profile.id}
                   className="border-b border-zinc-100 dark:border-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
                 >
-                  <td className="py-3 px-4 text-sm font-medium">{profile.name}</td>
-                  <td className="py-3 px-4 text-sm text-zinc-600 dark:text-zinc-400">
+                  <td 
+                    className={`py-3 px-4 text-sm font-medium ${
+                      profile.resumeId ? 'cursor-pointer hover:text-blue-600 dark:hover:text-blue-400' : ''
+                    }`}
+                    onClick={() => navigateToResume(profile.resumeId)}
+                  >
+                    {profile.name}
+                    {profile.resumeId && (
+                      <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
+                        (View Resume)
+                      </span>
+                    )}
+                  </td>
+                  <td 
+                    className={`py-3 px-4 text-sm text-zinc-600 dark:text-zinc-400 ${
+                      profile.resumeId ? 'cursor-pointer hover:text-blue-600 dark:hover:text-blue-400' : ''
+                    }`}
+                    onClick={() => navigateToResume(profile.resumeId)}
+                  >
                     {profile.headline}
                   </td>
                   <td className="py-3 px-4 text-sm text-zinc-600 dark:text-zinc-400">

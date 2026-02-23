@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ArrowLeft, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { DashboardHeader } from '@/components/dashboard-header'
+import { BackButton } from '@/components/back-button'
 
 export default async function ResumesPage() {
   const session = await auth()
@@ -25,23 +27,15 @@ export default async function ResumesPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <div className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-        <div className="container mx-auto px-4 py-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm" className="text-zinc-900 dark:text-zinc-100 border border-transparent dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <DashboardHeader userEmail={session.user.email} />
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Optimized Resumes</h2>
+          <h2 className="text-3xl font-bold mb-2">Optimized Resumes   <BackButton /></h2>
           <p className="text-zinc-600 dark:text-zinc-400">
             View all your tailored resumes for specific jobs
           </p>
+
         </div>
 
         {resumes.length === 0 ? (

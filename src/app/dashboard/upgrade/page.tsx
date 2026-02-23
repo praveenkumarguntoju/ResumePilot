@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Check, Loader2, Sparkles } from 'lucide-react'
 import Link from 'next/link'
+import { DashboardHeader } from '@/components/dashboard-header'
+import { BackButton } from '@/components/back-button'
 
 const PLANS = {
   free: {
@@ -61,14 +63,9 @@ export default function UpgradePage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-        <div className="container mx-auto px-4 py-4">
-          <Link href="/dashboard" className="inline-flex items-center text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Link>
-        </div>
-      </header>
+      <DashboardHeader userEmail={null} />
+      <BackButton />
+    
 
       <main className="container mx-auto px-4 py-16 max-w-5xl">
         <div className="text-center mb-12">
