@@ -22,19 +22,21 @@ model University {
 }
 
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  name            String?
-  passwordHash    String
-  planType        String    @default("free")
-  role            String    @default("individual")  // "individual" | "student" | "advisor" | "admin" | "superadmin"
-  universityId    String?
-  isActive        Boolean   @default(true)
-  isApproved      Boolean   @default(true)
-  consentGiven    Boolean   @default(false)
-  consentAt       DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  name                 String?
+  passwordHash         String
+  planType             String    @default("free")
+  role                 String    @default("individual")  // "individual" | "student" | "advisor" | "admin" | "superadmin"
+  universityId         String?
+  isActive             Boolean   @default(true)
+  isApproved           Boolean   @default(true)
+  consentGiven         Boolean   @default(false)
+  consentAt            DateTime?
+  profileImage         String?
+  showImageOnProfile   Boolean   @default(true)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
   
   university           University?          @relation(fields: [universityId], references: [id], onDelete: SetNull)
   profile              Profile?

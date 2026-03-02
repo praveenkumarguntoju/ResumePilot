@@ -17,9 +17,15 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: session.user.id },
-  })
+  const [profile, currentUser] = await Promise.all([
+    prisma.profile.findUnique({
+      where: { userId: session.user.id },
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { profileImage: true },
+    }),
+  ])
 
   const resumes = await prisma.resume.findMany({
     where: { userId: session.user.id },
@@ -41,7 +47,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <DashboardHeader userEmail={session.user.email} />
+      <DashboardHeader userEmail={session.user.email} profileImage={currentUser?.profileImage} />
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">

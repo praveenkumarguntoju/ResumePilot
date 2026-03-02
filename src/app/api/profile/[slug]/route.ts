@@ -10,13 +10,25 @@ export async function GET(
 
     const profile = await prisma.publicProfile.findUnique({
       where: { slug, isActive: true },
+      include: {
+        user: {
+          select: {
+            profileImage: true,
+            showImageOnProfile: true,
+          }
+        }
+      }
     })
 
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
-    return NextResponse.json(profile)
+    const { user, ...profileData } = profile
+    return NextResponse.json({
+      ...profileData,
+      profileImage: user?.showImageOnProfile ? user?.profileImage : null,
+    })
   } catch (error) {
     console.error('Get profile error:', error)
     return NextResponse.json(

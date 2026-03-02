@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChatBox } from '@/components/chat-box'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { MapPin, Briefcase, Award, Eye, Download, Calendar, Building2 } from 'lucide-react'
+import { MapPin, Briefcase, Award, Eye, Download, Calendar, Building2, User } from 'lucide-react'
 import { ResumeModal } from '@/components/resume-modal'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -21,6 +21,7 @@ interface Profile {
   shortBrief: string | null
   skills: string
   experience: string
+  profileImage?: string | null
 }
 
 export default function PublicProfilePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -93,30 +94,51 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
       {/* Compact Hero Section */}
       <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-950 border-b border-zinc-200 dark:border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium mb-4">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-            </span>
-            Available for opportunities
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-white mb-2">
-            {profile.name}
-          </h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-3">
-            {profile.headline}
-          </p>
-          {profile.shortBrief && (
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-3 leading-relaxed max-w-3xl">
-              {profile.shortBrief}
-            </p>
-          )}
-          {profile.location && (
-            <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-              <MapPin className="h-4 w-4" />
-              <span className="text-sm">{profile.location}</span>
+          <div className="flex items-start gap-6">
+            {/* Profile Image */}
+            {profile.profileImage ? (
+              <div className="flex-shrink-0">
+                <Image
+                  src={profile.profileImage}
+                  alt={profile.name}
+                  width={100}
+                  height={100}
+                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white dark:border-zinc-800 shadow-lg"
+                />
+              </div>
+            ) : (
+              <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center border-4 border-white dark:border-zinc-800 shadow-lg">
+                <User className="h-10 w-10 text-zinc-400 dark:text-zinc-500" />
+              </div>
+            )}
+
+            <div className="flex-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium mb-4">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Available for opportunities
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-white mb-2">
+                {profile.name}
+              </h1>
+              <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-3">
+                {profile.headline}
+              </p>
+              {profile.shortBrief && (
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-3 leading-relaxed max-w-3xl">
+                  {profile.shortBrief}
+                </p>
+              )}
+              {profile.location && (
+                <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
+                  <MapPin className="h-4 w-4" />
+                  <span className="text-sm">{profile.location}</span>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
 

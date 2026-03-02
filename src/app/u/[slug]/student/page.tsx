@@ -50,6 +50,7 @@ interface ProfileData {
   phone?: string
   rawResumeText: string | null
   updatedAt: string
+  profileImage?: string | null
 }
 
 export default function StudentDashboardPage() {
@@ -134,7 +135,7 @@ export default function StudentDashboardPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <DashboardHeader userEmail={session?.user?.email || null} />
+      <DashboardHeader userEmail={session?.user?.email || null} profileImage={profile?.profileImage} />
 
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-8">
