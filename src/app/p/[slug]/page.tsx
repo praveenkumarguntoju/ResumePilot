@@ -89,7 +89,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
   }, [params, router])
 
   return (
-    <div ref={topRef} className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+    <div ref={topRef} className="min-h-screen bg-[#eef0f8] dark:bg-zinc-950">
       {(loading || !profile) ? (
         <div className="flex items-center justify-center h-screen">
           <div className="text-center">
@@ -115,9 +115,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
         </div>
       </header>
       
-      {/* Compact Hero Section */}
-      <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-950 border-b border-zinc-200 dark:border-zinc-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1a237e] via-[#283593] to-[#1565c0] dark:from-[#0d1442] dark:via-[#162058] dark:to-[#0d3b6e]"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="flex items-start gap-6">
             {/* Profile Image */}
             {profile.profileImage ? (
@@ -125,38 +126,38 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                 <Image
                   src={profile.profileImage}
                   alt={profile.name}
-                  width={100}
-                  height={100}
-                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white dark:border-zinc-800 shadow-lg"
+                  width={112}
+                  height={112}
+                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white/90 dark:border-zinc-700 shadow-xl ring-4 ring-white/20"
                 />
               </div>
             ) : (
-              <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center border-4 border-white dark:border-zinc-800 shadow-lg">
-                <User className="h-10 w-10 text-zinc-400 dark:text-zinc-500" />
+              <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-4 border-white/90 dark:border-zinc-700 shadow-xl ring-4 ring-white/20">
+                <User className="h-10 w-10 text-white/80" />
               </div>
             )}
 
             <div className="flex-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-green-300 text-xs font-medium mb-4">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
                 Available for opportunities
               </div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-white mb-2">
+              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
                 {profile.name}
               </h1>
-              <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-3">
+              <p className="text-lg text-blue-100 mb-3">
                 {profile.headline}
               </p>
               {profile.shortBrief && (
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-3 leading-relaxed max-w-3xl">
+                <p className="text-sm text-blue-100/80 mb-3 leading-relaxed max-w-3xl">
                   {profile.shortBrief}
                 </p>
               )}
               {profile.location && (
-                <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
+                <div className="flex items-center gap-2 text-blue-200">
                   <MapPin className="h-4 w-4" />
                   <span className="text-sm">{profile.location}</span>
                 </div>
@@ -166,13 +167,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 -mt-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Skills */}
             {skills.length > 0 && (
-              <Card className="border-zinc-200 dark:border-zinc-800 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <Card className="bg-white dark:bg-zinc-900 border-zinc-200/80 dark:border-zinc-800 shadow-md hover:shadow-lg transition-shadow duration-300 rounded-xl">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-2xl">
                     <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
@@ -201,7 +202,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
 
             {/* Experience from Resume */}
             {experienceFromResume.length > 0 && (
-              <Card className="border-zinc-200 dark:border-zinc-800 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <Card className="bg-white dark:bg-zinc-900 border-zinc-200/80 dark:border-zinc-800 shadow-md hover:shadow-lg transition-shadow duration-300 rounded-xl">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-3 text-2xl">
                     <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
@@ -261,7 +262,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
             )}
 
             {/* Full Resume */}
-            <Card className="border-zinc-200 dark:border-zinc-800 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card className="bg-white dark:bg-zinc-900 border-zinc-200/80 dark:border-zinc-800 shadow-md hover:shadow-lg transition-shadow duration-300 rounded-xl">
               <CardHeader className="pb-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
