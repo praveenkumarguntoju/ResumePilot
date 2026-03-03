@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChatBox } from '@/components/chat-box'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -8,8 +8,8 @@ import { MapPin, Briefcase, Award, Eye, Download, Calendar, Building2, User } fr
 import { ResumeModal } from '@/components/resume-modal'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { DashboardHeader } from '@/components/dashboard-header'
 import { BackButton } from '@/components/back-button'
+import { MarkdownRenderer } from '@/components/markdown-renderer'
 import Image from 'next/image'
 
 interface Profile {
@@ -30,6 +30,15 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
   const [loading, setLoading] = useState(true)
   const [skills, setSkills] = useState<string[]>([])
   const [experienceFromResume, setExperienceFromResume] = useState<string[]>([])
+
+  const topRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+    window.scrollTo(0, 0)
+  }, [])
 
   useEffect(() => {
     async function loadProfile() {
@@ -69,27 +78,42 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
         router.push('/404')
       } finally {
         setLoading(false)
+        setTimeout(() => {
+          topRef.current?.scrollIntoView()
+          window.scrollTo(0, 0)
+        }, 50)
       }
     }
     
     loadProfile()
   }, [params, router])
 
-  if (loading || !profile) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-zinc-600 dark:text-zinc-400">Loading profile...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
-      {/* Header */}
-      <DashboardHeader userEmail={null} />
+    <div ref={topRef} className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+      {(loading || !profile) ? (
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-zinc-600 dark:text-zinc-400">Loading profile...</p>
+          </div>
+        </div>
+      ) : (
+        <>
+      {/* Header - Public profile only shows logo */}
+      <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Image 
+              src="/images/resume-pilot.png" 
+              alt="ResumePilot Logo"
+              className="rounded-lg"
+              width={250} 
+              height={250}
+            />
+          </div>
+          <ThemeToggle />
+        </div>
+      </header>
       
       {/* Compact Hero Section */}
       <div className="bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-950 border-b border-zinc-200 dark:border-zinc-800">
@@ -250,23 +274,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
               </CardHeader>
               <CardContent>
                 <div className="bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-800 rounded-xl p-8 max-h-[400px] overflow-hidden relative border border-zinc-200 dark:border-zinc-700">
-                  <div className="prose prose-sm dark:prose-invert max-w-none">
-                    {profile.resumeText.split('\n').slice(0, 20).map((line, i) => {
-                      const formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                      
-                      if (line.trim().endsWith(':') && line.trim().length > 2) {
-                        return <h3 key={i} className="text-base font-bold mt-4 mb-2 text-zinc-900 dark:text-white" dangerouslySetInnerHTML={{ __html: formattedLine }} />
-                      }
-                      if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
-                        return <li key={i} className="ml-4 text-sm text-zinc-700 dark:text-zinc-300" dangerouslySetInnerHTML={{ __html: formattedLine.replace(/^[-•]\s*/, '') }} />
-                      }
-                      if (line.trim() === '') return <br key={i} />
-                      return <p key={i} className="text-sm mb-2 text-zinc-700 dark:text-zinc-300" dangerouslySetInnerHTML={{ __html: formattedLine }} />
-                    })}
-                  </div>
+                  <MarkdownRenderer content={profile.resumeText.split('\n').slice(0, 30).join('\n')} />
                   <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-zinc-100 via-zinc-100/80 dark:from-zinc-800 dark:via-zinc-800/80 to-transparent flex items-end justify-center pb-4">
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 font-medium">
-                      Click "View Full Resume" to see complete content
+                      Click &quot;View Full Resume&quot; to see complete content
                     </p>
                   </div>
                 </div>
@@ -282,6 +293,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       </div>
+        </>
+      )}
     </div>
   )
 }

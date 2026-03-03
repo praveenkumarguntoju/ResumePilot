@@ -69,10 +69,12 @@ export function ResumeModal({ resumeText, contactInfo, forceTemplate }: ResumeMo
       </DialogTrigger>
       <DialogContent className="max-w-[70vw] w-[70vw] max-h-[90vh] overflow-hidden flex flex-col" style={{ maxWidth: '70%' }}>
         <DialogHeader>
-          <DialogTitle>Your Professional Resume</DialogTitle>
-          <DialogDescription>
-            Choose a template and preview your resume before downloading
-          </DialogDescription>
+          <DialogTitle>{forceTemplate ? 'Resume' : 'Your Professional Resume'}</DialogTitle>
+          {!forceTemplate && (
+            <DialogDescription>
+              Choose a template and preview your resume before downloading
+            </DialogDescription>
+          )}
         </DialogHeader>
 
         {/* Template Selector */}
