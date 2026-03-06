@@ -1,14 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { DashboardHeader } from '@/components/dashboard-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
-import { Loader2, Users, Target, MessageSquare, Send, ChevronDown, ChevronUp, Bell, Plus } from 'lucide-react'
+import { Loader2, Users, Target, MessageSquare, Send, ChevronDown, ChevronUp, Bell, Plus, TrendingUp } from 'lucide-react'
+import { EmployabilityHeatmap } from '@/components/employability-heatmap'
 
 interface Student {
   id: string
@@ -37,6 +38,7 @@ interface Opportunity {
 
 export default function AdvisorDashboardPage() {
   const params = useParams()
+  const router = useRouter()
   const slug = params.slug as string
   const { data: session } = useSession()
 
@@ -52,6 +54,10 @@ export default function AdvisorDashboardPage() {
   const [oppTitle, setOppTitle] = useState('')
   const [oppDesc, setOppDesc] = useState('')
   const [oppLink, setOppLink] = useState('')
+  
+  // Analytics states
+  const [showHeatmapModal, setShowHeatmapModal] = useState(false)
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
 
   useEffect(() => {
     async function loadStudents() {
@@ -67,8 +73,22 @@ export default function AdvisorDashboardPage() {
         setLoading(false)
       }
     }
+    
+    async function loadAnalytics() {
+      try {
+        const res = await fetch('/api/admin/analytics')
+        if (res.ok) {
+          const data = await res.json()
+          setAnalyticsData(data)
+        }
+      } catch (err) {
+        console.error('Failed to load analytics:', err)
+      }
+    }
+    
     loadStudents()
     loadOpportunities()
+    loadAnalytics()
   }, [slug])
 
   async function loadOpportunities() {
@@ -185,7 +205,7 @@ export default function AdvisorDashboardPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -223,7 +243,42 @@ export default function AdvisorDashboardPage() {
               </div>
             </CardContent>
           </Card>
+          
+          {/* Employability Heatmap Card */}
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => setShowHeatmapModal(true)}
+          >
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="h-8 w-8 text-red-600" />
+                <div>
+                  <p className="text-2xl font-bold">
+                    {analyticsData?.skillHeatmap?.length || 0}
+                  </p>
+                  <p className="text-xs text-zinc-500">Skills Tracked</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Heatmap Modal */}
+        {showHeatmapModal && analyticsData?.skillHeatmap && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-bold">Employability Heatmap</h2>
+                  <Button variant="outline" onClick={() => setShowHeatmapModal(false)}>
+                    Close
+                  </Button>
+                </div>
+                <EmployabilityHeatmap data={analyticsData.skillHeatmap} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Student List */}
         <Card>
@@ -261,6 +316,14 @@ export default function AdvisorDashboardPage() {
                             Not assessed
                           </span>
                         )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => router.push(`/u/${slug}/advisor/${student.id}`)}
+                          className="text-xs"
+                        >
+                          Analyze
+                        </Button>
                         {expandedStudent === student.id ? (
                           <ChevronUp className="h-4 w-4 text-zinc-400" />
                         ) : (

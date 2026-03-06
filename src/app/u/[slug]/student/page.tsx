@@ -340,7 +340,7 @@ export default function StudentDashboardPage() {
                     Optimize for a job
                   </button>
                 </Link>
-                <Link href="/dashboard/review">
+                <Link href={`/u/${slug}/student/review`}>
                   <button className="text-sm px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors">
                     Get AI review
                   </button>

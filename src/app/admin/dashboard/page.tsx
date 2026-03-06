@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { DashboardHeader } from '@/components/dashboard-header'
 import { BackButton } from '@/components/back-button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmployabilityHeatmap } from '@/components/employability-heatmap'
 import { Loader2, Users, FileText, Briefcase, Target, AlertTriangle, TrendingUp, BarChart3 } from 'lucide-react'
 
 interface Analytics {
@@ -27,6 +28,13 @@ interface Analytics {
   totalUsers: number
   totalResumes: number
   totalApplications: number
+  skillHeatmap: {
+    skill: string
+    strongPercentage: number
+    weakPercentage: number
+    totalStudents: number
+    trend: 'up' | 'down' | 'stable'
+  }[]
 }
 
 export default function AdminDashboardPage() {
@@ -166,6 +174,11 @@ export default function AdminDashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Employability Heatmap */}
+        {analytics.skillHeatmap && analytics.skillHeatmap.length > 0 && (
+          <EmployabilityHeatmap data={analytics.skillHeatmap} />
+        )}
 
         {/* Average Scores */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
