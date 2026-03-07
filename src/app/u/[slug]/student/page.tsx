@@ -53,6 +53,16 @@ interface ProfileData {
   profileImage?: string | null
 }
 
+interface InterviewSession {
+  id: string
+  roleTitle: string
+  status: string
+  overallScore: number | null
+  totalQuestions: number
+  answeredQuestions: number
+  createdAt: string
+}
+
 export default function StudentDashboardPage() {
   const params = useParams()
   const slug = params.slug as string
@@ -63,17 +73,19 @@ export default function StudentDashboardPage() {
   const [opportunities, setOpportunities] = useState<OpportunityNotif[]>([])
   const [resumes, setResumes] = useState<ResumeItem[]>([])
   const [profile, setProfile] = useState<ProfileData | null>(null)
+  const [interviewSessions, setInterviewSessions] = useState<InterviewSession[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [readinessRes, commentsRes, oppsRes, resumesRes, profileRes] = await Promise.all([
+        const [readinessRes, commentsRes, oppsRes, resumesRes, profileRes, interviewRes] = await Promise.all([
           fetch('/api/interview-readiness'),
           fetch(`/api/university/${slug}/comments`),
           fetch(`/api/university/${slug}/opportunities/student`),
           fetch('/api/resume/list'),
           fetch('/api/profile/me'),
+          fetch('/api/interview/sessions'),
         ])
 
         if (readinessRes.ok) {
@@ -95,6 +107,10 @@ export default function StudentDashboardPage() {
         if (profileRes.ok) {
           const data = await profileRes.json()
           if (data?.rawResumeText) setProfile(data)
+        }
+        if (interviewRes.ok) {
+          const data = await interviewRes.json()
+          setInterviewSessions(data)
         }
       } catch (err) {
         console.error('Failed to load student data:', err)
@@ -190,20 +206,18 @@ export default function StudentDashboardPage() {
             </Card>
           </Link>
 
-          {/* Opportunities */}
-          <Link href={`/u/${slug}/opportunities`}>
-            <Card className="cursor-pointer hover:shadow-xl transition-all hover:border-yellow-400 dark:hover:border-yellow-600">
+          {/* Mock Interviews */}
+          <Link href={`/u/${slug}/student/interviews`}>
+            <Card className="cursor-pointer hover:shadow-xl transition-all hover:border-purple-400 dark:hover:border-purple-600">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Opportunities</CardTitle>
-                <Bell className="h-5 w-5 text-yellow-600" />
+                <CardTitle className="text-sm font-medium">Mock Interviews</CardTitle>
+                <MessageSquare className="h-5 w-5 text-purple-600" />
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{opportunities.length}</p>
-                {unreadCount > 0 && (
-                  <p className="text-xs text-yellow-600 font-medium mt-1">
-                    {unreadCount} new
-                  </p>
-                )}
+                <p className="text-3xl font-bold">{interviewSessions.length}</p>
+                <p className="text-xs text-zinc-500 mt-1">
+                  {interviewSessions.length === 0 ? 'Start practicing' : 'completed sessions'}
+                </p>
               </CardContent>
             </Card>
           </Link>
@@ -249,20 +263,20 @@ export default function StudentDashboardPage() {
               </CardContent>
             </Card>
           </Link>
-          <Link href="/dashboard/review">
-            <Card className="cursor-pointer hover:shadow-xl transition-all border-2 border-rose-400 dark:border-rose-600 relative overflow-hidden h-full">
+          <Link href={`/u/${slug}/student/interview`}>
+            <Card className="cursor-pointer hover:shadow-xl transition-all border-2 border-purple-400 dark:border-purple-600 relative overflow-hidden h-full">
               <CardContent className="pt-6 pb-5 px-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className="inline-block text-xs font-bold text-white bg-gradient-to-r from-rose-500 to-pink-500 px-3 py-1 rounded-full mb-3">
-                      ✨ NEW
+                    <span className="inline-block text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-1 rounded-full mb-3">
+                      ✨ AI POWERED
                     </span>
-                    <p className="font-semibold text-base">Resume Review</p>
-                    <p className="text-sm text-rose-600 dark:text-rose-400 font-medium mt-2">Get AI feedback</p>
-                    <p className="text-xs text-zinc-500 mt-1">Detailed resume critique</p>
+                    <p className="font-semibold text-base">Mock Interview</p>
+                    <p className="text-sm text-purple-600 dark:text-purple-400 font-medium mt-2">Practice with AI</p>
+                    <p className="text-xs text-zinc-500 mt-1">5-7 tailored questions</p>
                   </div>
-                  <div className="h-12 w-12 rounded-full bg-rose-100 dark:bg-rose-950 flex items-center justify-center shrink-0 ml-3">
-                    <FileText className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+                  <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-950 flex items-center justify-center shrink-0 ml-3">
+                    <MessageSquare className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                   </div>
                 </div>
               </CardContent>

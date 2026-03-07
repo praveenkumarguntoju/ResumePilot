@@ -293,9 +293,9 @@ export default function AdvisorDashboardPage() {
               <div className="space-y-2">
                 {students.map((student) => (
                   <div key={student.id} className="border rounded-lg overflow-hidden">
-                    <button
+                    <div
                       onClick={() => toggleStudent(student.id)}
-                      className="w-full flex items-center justify-between p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors text-left"
+                      className="w-full flex items-center justify-between p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-4">
                         <div className="h-10 w-10 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-sm font-bold">
@@ -319,7 +319,10 @@ export default function AdvisorDashboardPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => router.push(`/u/${slug}/advisor/${student.id}`)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            router.push(`/u/${slug}/advisor/${student.id}`)
+                          }}
                           className="text-xs"
                         >
                           Analyze
@@ -330,7 +333,7 @@ export default function AdvisorDashboardPage() {
                           <ChevronDown className="h-4 w-4 text-zinc-400" />
                         )}
                       </div>
-                    </button>
+                    </div>
 
                     {expandedStudent === student.id && (
                       <div className="border-t px-4 py-4 bg-zinc-50 dark:bg-zinc-900/50">
